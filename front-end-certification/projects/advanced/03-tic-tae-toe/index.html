@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Tic Tac Toe Game</title>
+
+  <style>
+    #board {
+      margin: 0 auto;
+      width: 150px;
+    }
+
+    .square {
+      cursor: pointer;
+      display:block;
+      float:left;
+      font-size: 36px;
+      height: 50px;
+      line-heigth: 38px;
+      text-align: center;
+      vertical-align: middle;
+      width: 50px;
+    }
+
+    #square-1 {
+      border-right: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #square-2 {
+      border-bottom: 1px solid #ccc;
+    }
+
+    #square-3 {
+      border-left: 1px solid #ccc;
+      border-bottom: 1px solid #ccc;
+    }
+
+    #square-4 {
+      border-right: 1px solid #ccc;
+    }
+
+    #square-6 {
+      border-left: 1px solid #ccc;
+    }
+
+    #square-7 {
+      border-right: 1px solid #ccc;
+      border-top: 1px solid #ccc;
+    }
+
+    #square-8 {
+      border-top: 1px solid #ccc;
+    }
+
+    #square-9 {
+      border-left: 1px solid #ccc;
+      border-top: 1px solid #ccc;
+    }
+
+    .square:hover {
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-choose">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+          </div>
+          <div class="modal-body">
+            <p>X or O ??</p>
+          </div>
+          <div class="modal-footer">
+            <button id="choose-o" type="button" class="btn btn-default" data-dismiss="modal">O</button>
+            <button id="choose-o" type="button" class="btn btn-default" data-dismiss="modal">X</button>
+          </div>
+        </div><!-- /.modal-content -->
+      </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+      
+    <div class="modal fade" tabindex="-1" role="dialog" id="modal-winner">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+          </div>
+          <div class="modal-body">
+            <span id="win-message"></span>
+          </div>
+          <div class="modal-footer">
+            <button id="btn-play-again" type="button" class="btn btn-default" data-dismiss="modal">Play again</button>
+          </div>
+        </div>
+      </div>
+    </div>
+        
+    <div id="board">
+      <div class="clearfix">
+        <a id="square-1" class="square" data-square="1"></a>
+        <a id="square-2" class="square" data-square="2"></a>
+        <a id="square-3" class="square" data-square="3"></a>
+      </div>
+        
+      <div class="clearfix">
+        <a id="square-4" class="square" data-square="4"></a>
+        <a id="square-5" class="square" data-square="5"></a>
+        <a id="square-6" class="square" data-square="6"></a>
+      </div>
+        
+      <div class="clearfix">
+        <a id="square-7" class="square" data-square="7"></a>
+        <a id="square-8" class="square" data-square="8"></a>
+        <a id="square-9" class="square" data-square="9"></a>
+      </div>
+    </div>
+
+  <script type="text/javascript">
+    var iconPlayer = "";
+    var cpuIcon = "";
+    var lastStart = "";
+    var turnOf = "";
+
+    var piecesPosition = ["", "", "",
+                          "", "", "",
+                          "", "", ""];
+
+    var allowedPositions = [0, 1, 2, 3, 4, 5, 6, 7, 8];
+
+    function registerSquareClick(){
+      $(".square").click(function(){
+        if (turnOf == "player")
+          registerPlayerMove($(this).attr("data-square"));
+      });
+    }
+
+    function registerPlayerMove(idSquare) {
+      if (piecesPosition[idSquare - 1] != "")
+        return;
+      
+      piecesPosition[idSquare - 1] = iconPlayer;
+      renderArrayOnTable();
+      if (checkWinCondition())
+        return;
+      turnOf = "CPU";
+      makeCPUMove();
+    }
+
+    function renderArrayOnTable(){
+      for (var x = 0; x < piecesPosition.length; x++)
+      {
+        $("#square-" + (x + 1)).html(piecesPosition[x]);
+      }
+    }
+
+    function checkWinner(icon){
+      $("#modal-winner").modal();
+      if (icon == "")
+        $("#win-message").html("No winner :(");
+      else
+        $("#win-message").html("Winner is " + icon);
+      registerPlayAgainClick();
+    }
+
+    function checkWinCondition(){
+      // Horizontal Conditions
+      if (piecesPosition[0] == piecesPosition[1] && piecesPosition[1] == piecesPosition[2] && piecesPosition[0] != "")
+        {
+          checkWinner(piecesPosition[0]);
+          return true;
+        }
+      
+      if (piecesPosition[3] == piecesPosition[4] && piecesPosition[4] == piecesPosition[5] && piecesPosition[3] != "")
+      {
+        checkWinner(piecesPosition[3]);
+        return true;
+      }
+      
+      if (piecesPosition[6] == piecesPosition[7] && piecesPosition[7] == piecesPosition[8] && piecesPosition[6] != "")
+      {
+        checkWinner(piecesPosition[6]);
+        return true;
+      }
+      
+      //Vertical Conditions
+      if (piecesPosition[0] == piecesPosition[3] && piecesPosition[3] == piecesPosition[6] && piecesPosition[0] != "")
+      {
+        checkWinner(piecesPosition[0]);
+        return true;
+      }
+      
+      if (piecesPosition[1] == piecesPosition[4] && piecesPosition[4] == piecesPosition[7] && piecesPosition[1] != "")
+      {
+        checkWinner(piecesPosition[1]);
+        return true;
+      }
+      
+      if (piecesPosition[2] == piecesPosition[5] && piecesPosition[5] == piecesPosition[8] && piecesPosition[2] != "")
+      {
+        checkWinner(piecesPosition[2]);
+        return true;
+      }
+      
+      // Diagonal Conditions
+      if (piecesPosition[0] == piecesPosition[4] && piecesPosition[4] == piecesPosition[8] && piecesPosition[0] != "")
+      {
+        checkWinner(piecesPosition[0]);
+        return true;
+      }
+      
+      if (piecesPosition[2] == piecesPosition[4] && piecesPosition[4] == piecesPosition[6] && piecesPosition[2] != "")
+      {
+        checkWinner(piecesPosition[2]);
+        return true;
+      }
+      
+      var tie = true;
+      piecesPosition.forEach(function(piecePosition){
+        if (piecePosition == "")
+          tie = false;
+      });
+      
+      if (tie)
+      {
+        checkWinner("");
+        return true;
+      }
+      
+      return false;
+    }
+
+    function checkPositionToCPUWin(){
+      if (piecesPosition[0] == "" && 
+           (piecesPosition[1] == cpuIcon && piecesPosition[2] == cpuIcon  ||
+            piecesPosition[4] == cpuIcon && piecesPosition[8] == cpuIcon  ||
+            piecesPosition[3] == cpuIcon && piecesPosition[6] == cpuIcon))
+        return 0;
+      
+      if (piecesPosition[1] == "" &&
+          (piecesPosition[0] == cpuIcon && piecesPosition[2] == cpuIcon ||
+          piecesPosition[4] == cpuIcon && piecesPosition[7] == cpuIcon))
+        return 1;
+      
+      if (piecesPosition[2] == "" &&
+          (piecesPosition[0] == cpuIcon && piecesPosition[1] == cpuIcon ||
+           piecesPosition[4] == cpuIcon && piecesPosition[7] == cpuIcon ||
+         piecesPosition[5] == cpuIcon && piecesPosition[8] == cpuIcon))
+        return 2;
+      
+      if (piecesPosition[3] == "" &&
+          (piecesPosition[4] == cpuIcon && piecesPosition[5] == cpuIcon ||
+          piecesPosition[0] == cpuIcon && piecesPosition[6] == cpuIcon))
+        return 3;
+      
+      if (piecesPosition[4] == "" &&
+          (piecesPosition[3] == cpuIcon && piecesPosition[5] == cpuIcon ||
+          piecesPosition[2] == cpuIcon && piecesPosition[7] == cpuIcon ||
+          piecesPosition[0] == cpuIcon && piecesPosition[8] == cpuIcon ||
+          piecesPosition[2] == cpuIcon && piecesPosition[6] == cpuIcon))
+        return 4;
+      
+      if (piecesPosition[5] == "" &&
+          (piecesPosition[3] == cpuIcon && piecesPosition[4] == cpuIcon ||
+          piecesPosition[2] == cpuIcon && piecesPosition[8] == cpuIcon))
+        return 5;
+        
+      if (piecesPosition[6] == "" &&
+          (piecesPosition[7] == cpuIcon && piecesPosition[8] == cpuIcon ||
+          piecesPosition[0] == cpuIcon && piecesPosition[3] == cpuIcon ||
+          piecesPosition[4] == cpuIcon && piecesPosition[2] == cpuIcon))
+        return 6;
+      
+      if (piecesPosition[7] == "" &&
+          (piecesPosition[6] == cpuIcon && piecesPosition[8] == cpuIcon ||
+          piecesPosition[1] == cpuIcon && piecesPosition[4] == cpuIcon))
+        return 7;
+
+      if (piecesPosition[8] == "" &&
+          (piecesPosition[6] == cpuIcon && piecesPosition[7] == cpuIcon ||
+          piecesPosition[0] == cpuIcon && piecesPosition[4] == cpuIcon ||
+          piecesPosition[2] == cpuIcon && piecesPosition[5] == cpuIcon))
+        return 8;
+      
+      return -1;
+    }
+
+    function checkPositionToPlayerWin(){
+      if (piecesPosition[0] == "" && 
+           (piecesPosition[1] == iconPlayer && piecesPosition[2] == iconPlayer  ||
+            piecesPosition[4] == iconPlayer && piecesPosition[8] == iconPlayer  ||
+            piecesPosition[3] == iconPlayer && piecesPosition[6] == iconPlayer))
+        return 0;
+      
+      if (piecesPosition[1] == "" &&
+          (piecesPosition[0] == iconPlayer && piecesPosition[2] == iconPlayer ||
+          piecesPosition[4] == iconPlayer && piecesPosition[7] == iconPlayer))
+        return 1;
+      
+      if (piecesPosition[2] == "" &&
+          (piecesPosition[0] == iconPlayer && piecesPosition[1] == iconPlayer ||
+           piecesPosition[4] == iconPlayer && piecesPosition[6] == iconPlayer ||
+         piecesPosition[5] == iconPlayer && piecesPosition[8] == iconPlayer))
+        return 2;
+      
+      if (piecesPosition[3] == "" &&
+          (piecesPosition[4] == iconPlayer && piecesPosition[5] == iconPlayer ||
+          piecesPosition[0] == iconPlayer && piecesPosition[6] == iconPlayer))
+        return 3;
+      
+      if (piecesPosition[4] == "" &&
+          (piecesPosition[3] == iconPlayer && piecesPosition[5] == iconPlayer ||
+          piecesPosition[2] == iconPlayer && piecesPosition[7] == iconPlayer ||
+          piecesPosition[0] == iconPlayer && piecesPosition[8] == iconPlayer ||
+          piecesPosition[2] == iconPlayer && piecesPosition[6] == iconPlayer))
+        return 4;
+      
+      if (piecesPosition[5] == "" &&
+          (piecesPosition[3] == iconPlayer && piecesPosition[4] == iconPlayer ||
+          piecesPosition[2] == iconPlayer && piecesPosition[8] == iconPlayer))
+        return 5;
+        
+      if (piecesPosition[6] == "" &&
+          (piecesPosition[7] == iconPlayer && piecesPosition[8] == iconPlayer ||
+          piecesPosition[0] == iconPlayer && piecesPosition[3] == iconPlayer ||
+          piecesPosition[4] == iconPlayer && piecesPosition[2] == iconPlayer))
+        return 6;
+      
+      if (piecesPosition[7] == "" &&
+          (piecesPosition[6] == iconPlayer && piecesPosition[8] == iconPlayer ||
+          piecesPosition[1] == iconPlayer && piecesPosition[4] == iconPlayer))
+        return 7;
+
+      if (piecesPosition[8] == "" &&
+          (piecesPosition[6] == iconPlayer && piecesPosition[7] == iconPlayer ||
+          piecesPosition[0] == iconPlayer && piecesPosition[4] == iconPlayer ||
+          piecesPosition[2] == iconPlayer && piecesPosition[5] == iconPlayer))
+        return 8;
+      
+      return -1;
+    }
+
+    function checkTrapSituations(){
+      var bestPosition = -1;
+      if (piecesPosition[4] == iconPlayer && (piecesPosition[1] == "" || piecesPosition[3] == "" || piecesPosition[5] == "" || piecesPosition[7] == ""))
+      {
+        bestPosition = Math.trunc(Math.random() * 9);
+        while(piecesPosition[bestPosition] != "" || bestPosition == 1 || bestPosition == 3 || bestPosition == 5 || bestPosition == 7)
+        {
+          bestPosition = Math.trunc(Math.random() * 9);
+        }
+        
+        return bestPosition;
+      }
+      
+      if (piecesPosition[4] == "" && (piecesPosition[0] == iconPlayer || piecesPosition[2] == iconPlayer || piecesPosition[6] == iconPlayer || piecesPosition[8] == iconPlayer))
+        return 4;
+      
+      return -1;
+    }
+
+    function checkTrapSituationsForPlayer(){
+      
+      return -1;
+    }
+
+    function getBestMove()
+    {
+      var bestPosition = checkPositionToCPUWin();
+      
+      if (bestPosition != -1)
+        return bestPosition;
+      
+      bestPosition = checkPositionToPlayerWin();
+      
+      if (bestPosition != -1)
+        return bestPosition;
+      
+      bestPosition = checkTrapSituations();
+      
+      if (bestPosition != -1)
+        return bestPosition;
+      
+      bestPosition = checkTrapSituationsForPlayer();
+      
+      if (bestPosition != -1)
+        return bestPosition;
+      
+      return Math.trunc(Math.random() * 9);
+    }
+
+    function makeCPUMove() {
+      var positionToPlay = getBestMove();
+      
+      while (piecesPosition[positionToPlay] != "")
+      {
+        positionToPlay = getBestMove();
+      }
+      
+      piecesPosition[positionToPlay] = cpuIcon;
+      renderArrayOnTable();
+      
+      if (checkWinCondition())
+        return;
+      
+      turnOf = "player";
+    }
+
+    function startGame(){
+      if (lastStart == "")
+      {
+        lastStart = "CPU";
+        turnOf = "CPU";
+      }
+      
+      if (turnOf == "CPU")
+        makeCPUMove();
+    }
+
+    function restartGame(){
+      if (lastStart == "CPU")
+      {
+        lastStart = "player";
+        turnOf = "player";
+      }
+      else
+      {
+        lastStart = "CPU";
+        turnOf = "CPU";
+      }
+      
+      piecesPosition = ["", "", "",
+                          "", "", "",
+                          "", "", ""];
+      
+      $("#champion-panel").hide();
+      $("#board").show();
+      renderArrayOnTable();
+      
+      if (turnOf == "CPU")
+          makeCPUMove();
+    }
+
+    function registerPlayAgainClick(){
+      $("#btn-play-again").click(function(){
+        restartGame();
+      })
+    }
+
+    function registerChooseIconClick(){
+      $("#choose-o").click(function(){
+        iconPlayer = "o";
+        cpuIcon = "x";
+        $("#choose-icon").hide();
+        startGame();
+      });
+      
+      $("#choose-x").click(function(){
+        iconPlayer = "x";
+        cpuIcon = "o";
+        $("#choose-icon").hide();
+        startGame();
+      });
+      
+    }
+
+    $(document).ready(function(){
+      registerSquareClick();
+      registerChooseIconClick();
+      $('#modal-choose').modal()
+      $("#champion-panel").hide();
+    })
+  </script>
+</body>
+</html>

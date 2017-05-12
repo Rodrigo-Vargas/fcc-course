@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Calculator</title>
+
+  <style>
+    body {
+      background-color: #ccc;
+    }
+
+    a {
+      cursor: pointer;
+    }
+
+    a:hover {
+      text-decoration:none;
+    }
+
+    #container-calculator {
+      background-color: #fff;
+      margin: 0px auto;
+      width: 300px;
+    }
+
+    #container-display {
+      margin: 15px;
+    }
+
+    #display {
+      border: 1px solid #ccc;
+      display: block;
+      margin: 20px auto;
+      min-height: 100px;
+      min-width: 100px;
+      padding: 20px;
+    }
+
+    #container-keyboard {
+      margin: 0 auto;
+      width: 200px;
+    }
+
+    .key {
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      display:block;
+      text-align: center;
+      width: 40px;
+    }
+
+    .keyboard-row {
+      margin: 5px 0;
+    }
+  </style>
+</head>
+<body>
+  <div id="container-calculator">
+    <div id="container-display">
+      <span id="display"></span>
+    </div>
+    <div id="container-keyboard">
+      <div class="row keyboard-row">
+        <div class="col-xs-3">
+          <a class="key" data-value="C">CE</a>
+        </div>
+      </div>
+      <div class="row keyboard-row">
+        <div class="col-xs-3">
+          <a class="key" data-value="7">7</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="8">8</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="9">9</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="/">÷</a>
+        </div>
+      </div>
+      <div class="row keyboard-row">
+        <div class="col-xs-3">
+          <a class="key" data-value="4">4</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="5">5</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="6">6</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="*">x</a>
+        </div>
+      </div>
+      <div class="row keyboard-row">
+        <div class="col-xs-3">
+          <a class="key" data-value="1">1</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="2">2</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="3">3</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="-">-</a>
+        </div>
+      </div>
+      <div class="row keyboard-row">
+        <div class="col-xs-3">
+          <a class="key" data-value="0">0</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value=".">.</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="=">=</a>
+        </div>
+        <div class="col-xs-3">
+          <a class="key" data-value="+">+</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    calculate = function(total, number, operator) {
+    
+    switch (operator) {
+      case "+":
+        {
+          return Number(total) + Number(number);
+        }
+      case "-":
+        {
+          return Number(total) - Number(number);
+        }
+      case "*":
+        {
+          return Number(total) * Number(number);
+        }
+      case "/":
+        {
+          return Number(total) / Number(number);
+        }
+    }
+  }
+
+  evaluateCalc = function(expression) {
+    var total = 0;
+    var number = "";
+    var operation = "+";
+    for (var x = 0; x < expression.length; x++) {
+      switch (expression[x]) {
+        case "+":
+        case "-":
+        case "*":
+        case "/":
+          {
+            total = calculate(total, number, operation);
+            operation = expression[x];
+            number = "";
+            break;
+          }
+        default:
+          {
+            number = number + expression[x];
+          }
+      }
+    }
+    
+    total = calculate(total, number, operation);
+
+    return total;
+  }
+
+  keyPress = function(value) {
+    var html = $("#display").html();
+    switch(value)
+    {
+      case "=":
+      {
+        $("#display").html(evaluateCalc(html));
+        break;
+      }
+      case "C":
+      {
+        $("#display").html("");
+        break;
+      }
+      default:
+      {
+        $("#display").html(html + value);
+      }      
+    }
+    if (value == "=") {
+      
+    } else {
+      
+    }
+  }
+
+  registerKeyBoardPress = function() {
+    $(".key").click(function() {
+      keyPress($(this).data("value"));
+    });
+  }
+
+  init = function() {
+    registerKeyBoardPress();
+
+  }
+
+  init();
+  </script>
+</body>
+</html>

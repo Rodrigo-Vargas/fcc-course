@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simon Game</title>
+
+  <style>
+    body {
+      background-color: #aaa;
+    }
+
+    .container {
+      margin-top: 100px;
+    }
+
+    #game-board {
+      margin: 0 auto;
+      position: relative;
+      width: 256px;
+    }
+
+    .game-btn {
+      cursor: pointer;
+      display: block;
+      height: 128px;
+      width: 128px;
+    }
+
+    .red {
+      background-color: #AD0404;
+    }
+
+    .red.active {
+      background-color: red;
+    }
+
+    .green {
+      background-color: #015401;
+    }
+
+    .green.active {
+      background-color: green;
+    }
+
+    .blue {
+      background-color: #0000AB;
+    }
+
+    .blue.active {
+      background-color: blue;
+    }
+
+    .yellow {
+      background-color: #B7B700;
+    }
+
+    .yellow.active {
+      background-color: yellow;
+    }
+
+    #btn-1 {  
+      border: 6px solid #222;
+      border-right: 3px solid #222;
+      border-bottom: 3px solid #222;
+      border-radius: 50% 0 0 0;
+    }
+
+    #btn-2 {
+      border: 6px solid #222;
+      border-left: 3px solid #222;
+      border-bottom: 3px solid #222;
+      border-radius: 0 50% 0 0;
+    }
+
+    #btn-3 {
+      border: 6px solid #222;
+      border-right: 3px solid #222;
+      border-top: 3px solid #222;
+      border-radius: 0 0 0 50%;
+    }
+
+    #btn-4 {
+      border-radius: 0 0 50% 0; 
+      border: 6px solid #222;
+      border-left: 3px solid #222;
+      border-top: 3px solid #222;
+    }
+
+    .btn-container {
+      float: left;
+    }
+
+    #middle-game {
+      background-color: #ccc;
+      border-radius: 50%;
+      border: 5px solid #222;
+      height: 164px;
+      left: 44px;
+      position: absolute;
+      top: 44px;
+      width: 164px;  
+    }
+
+    #start-button {
+      background-color: red;
+      border-radius: 50%;
+      border: 1px solid #000;
+      cursor: pointer;
+      display:block;
+      float:left;
+      height:32px;
+      margin: 60px 0 0 10px;
+      width: 32px;
+    }
+
+    #strict-button {
+      background-color: gray;
+      border-radius: 50%;
+      border: 1px solid #000;
+      cursor: pointer;
+      display:block;
+      float:left;
+      height:32px;
+      margin: 60px 0 0 20px;
+      width: 32px;
+    }
+
+    #strict-display.active {
+      background-color: yellow;
+    }
+
+    #strict-display {
+      background-color: black;
+      border-radius: 50%;
+      border: 1px solid #000;
+      cursor: pointer;
+      display:block;
+      float:left;
+      height: 16px;
+      margin: 10px 0 0 100px;
+      width: 16px;
+    }
+
+    #step-counter-container {
+      background-color: #000;
+      float:left;
+      height: 32px;
+      line-heigth: 28px;
+      margin-left: 10px;
+      margin-top: 50px;
+      text-align: center;
+      vertical-align: middle;
+      width: 48px;
+    }
+
+    #step-counter {
+      color: red;
+      font-size: 28px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="game-board">
+      <div class="clearfix">
+        <div class="btn-container">
+          <a id="btn-1" data-position="1" class="game-btn green"></a>
+        </div>
+        <div class="btn-container">
+          <a id="btn-2" data-position="2" class="game-btn red"></a>
+        </div>
+      </div>
+      <div id="middle-game" class="clearfix">
+        <div id="step-counter-container">
+          <span id="step-counter"></span>
+        </div>
+        <a id="start-button"></a>
+        <a id="strict-button"></a>
+        <a id="strict-display"></a>
+      </div>
+      <div class="clearfix">
+        <div class="btn-container">
+          <a id="btn-3" data-position="3" class="game-btn yellow"></a>
+        </div>
+        <div class="btn-container">
+          <a id="btn-4" data-position="4" class="game-btn blue"></a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var steps = [];
+    var strictMode = false;
+    var actualStep = 0;
+    var sounds = [new Audio('https://s3.amazonaws.com/freecodecamp/simonSound1.mp3'),
+    new Audio('https://s3.amazonaws.com/freecodecamp/simonSound2.mp3'),
+    new Audio('https://s3.amazonaws.com/freecodecamp/simonSound3.mp3'),
+    new Audio('https://s3.amazonaws.com/freecodecamp/simonSound4.mp3')];
+    var interval = 1000;
+
+    function addStepOnSequence(){
+      steps.push(Math.trunc(Math.random() * 4 + 1));
+      console.log(steps);
+      
+      if (steps.length == 5)
+        interval = 750;
+      
+      if (steps.length == 9)
+        interval = 500;
+      
+      if (steps.length == 13)
+        interval = 250;  
+      
+      if (steps.lenght > 20)
+        $("#step-counter").html("win");
+      else
+        showSequence(0);
+    }
+
+    function showSequence(index){
+      $(".active").removeClass("active");
+      $("#step-counter").html(steps.length);
+      var step = steps[index];
+      
+      $("#btn-" + step).addClass("active");
+      playSound(step);
+      index++;
+      if (steps.length > index)
+      {
+        setTimeout(function(){
+          showSequence(index);
+        }, interval);  
+      }
+      else
+      {
+        setTimeout(function(){
+          $(".active").removeClass("active");
+        }, interval);
+      }
+    }
+
+    function playSound(position){
+      sounds[position - 1].play();
+    }
+
+    function registerGameButtonClick(){ 
+      $(".game-btn").mousedown(function(){
+        var position = $(this).attr("data-position");
+        $(this).addClass("active");
+        playSound(position);
+      });
+      
+      $(".game-btn").mouseup(function(){
+        $(this).removeClass("active");
+        var position = $(this).attr("data-position");
+        if (position == steps[actualStep])
+        {
+          actualStep++;
+          if (actualStep == steps.length)
+          {
+            actualStep = 0;
+            setTimeout(addStepOnSequence, 500);        
+          }
+        }
+        else
+        {
+          $("#step-counter").html("error");
+          if (strictMode)
+          {
+            setTimeout(function(){
+              startGame();
+            }, 1000);
+          }
+          else
+          {
+            setTimeout(function(){
+              actualStep = 0;
+              showSequence(0);
+            }, 1000);
+          }
+        }
+      });
+    }
+
+    function registerStartClick(){
+      $("#start-button").click(function(){
+        steps = [];
+        interval = 1000;
+        addStepOnSequence();
+      });
+    }
+
+    function initializeCounter(){
+      $("#step-counter").html("--");
+    }
+
+    function toogleStrict(){
+      strictMode = !strictMode;
+      if (strictMode)
+        $("#strict-display").addClass("active");
+      else
+        $("#strict-display").removeClass("active");    
+    }
+
+    function registerStrictClick(){
+      $("#strict-button").click(function(){
+        toogleStrict();
+      });
+    }
+
+    $(document).ready(function(){
+      registerGameButtonClick();
+      registerStartClick();
+      registerStrictClick();
+      initializeCounter();
+    });
+  </script>
+</body>
+</html>

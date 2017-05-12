@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Pomodoro timer</title>
+  <style>
+    body {
+      background-color: #ccc;
+      font-family: 'Lato';
+    }
+
+    a:hover {
+      color: #000;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .app-title {
+      text-align: center;
+    }
+
+    .container-controls {
+      line-height: 24px;
+      vertical-align: middle;
+    }
+
+    .container-controls a, .container-controls span {
+      float: left;
+      margin: 0px 5px;
+    }
+
+    .btn-control {
+      background-color: #fff;
+      border: 1px solid #23527c;
+      border-radius: 50%;
+      display:block;
+      height: 28px;
+      color: #23527c;
+      font-size: 28px;
+      text-align: center;
+      width:28px;
+    }
+
+    #pomodoro-container {
+      border-radius: 5px;
+      margin-top: 25px;
+      text-align: center;
+    }
+
+    #pomodoro-container.pomodoro {
+      background-color: #23527c;
+    }
+
+    #pomodoro-container.break {
+      background-color: #00C13F;
+    }
+
+    #pomodoro-container span {
+      color: #fff;
+      font-size: 36px;
+    }
+
+
+  </style>
+</head>
+<body>
+  <h1 class="app-title">Pomodoro Timer</h1>
+
+  <div id="pomodoro-settings-container" class="container">
+    <div class="row">
+      <div id="container-break-interval" class="col-xs-offset-3 col-xs-5 clearfix container-controls">
+        <a id="btn-decrement-break" class="btn-control">-</a>
+        <span id="break-interval"></span>
+        <a id="btn-increment-break" class="btn-control">+</a>
+      </div>
+
+      <div id="container-pomodoro-interval" class="col-xs-3 container-controls">
+        <a id="btn-decrement-pomodoro" class="btn-control">-</a>
+        <span id="pomodoro-interval"></span>
+        <a id="btn-increment-pomodoro" class="btn-control">+</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div id="pomodoro-container" class="col-xs-offset-4 col-xs-4 pomodoro">
+      <a id="pomodoro-timer">
+        <span id="pomodoro-minutes"></span>
+        <span>:</span>
+        <span id="pomodoro-seconds">00</span>
+      </a>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var initialPomodoroInterval = 25;
+    var initialBreakInterval = 5;
+    var started = false;
+    var onPomodoro = true;
+
+    changeBreakInterval = function()
+    {
+      started = false;
+      
+      if (!onPomodoro)
+      {
+        $("#pomodoro-minutes").html(initialBreakInterval);
+        $("#pomodoro-seconds").html("00");
+      }
+      $("#break-interval").html(initialBreakInterval);
+    }
+
+    registerIncrementBreakClick = function()
+    {
+      $("#btn-increment-break").click(function(){
+        initialBreakInterval++;
+        
+        changeBreakInterval();
+      });  
+    }
+
+    registerDecrementBreakClick = function()
+    {
+      $("#btn-decrement-break").click(function(){
+        if (initialBreakInterval > 1)
+          initialBreakInterval--;
+        
+        changeBreakInterval();
+      });  
+    }
+
+    changePomodoroInterval = function()
+    {
+      started = false;
+      
+      if (onPomodoro)
+      {
+        $("#pomodoro-minutes").html(initialPomodoroInterval);  
+        $("#pomodoro-seconds").html("00");
+      }
+      $("#pomodoro-interval").html(initialPomodoroInterval);
+    }
+
+    registerDecrementPomodoroClick = function()
+    {
+      $("#btn-decrement-pomodoro").click(function(){
+        if (initialPomodoroInterval > 1)
+          initialPomodoroInterval--;
+        
+        changePomodoroInterval();
+      });
+    }
+
+    registerIncrementPomodoroClick = function()
+    {
+      $("#btn-increment-pomodoro").click(function(){
+        initialPomodoroInterval++;
+        
+        changePomodoroInterval();
+      });
+    }
+
+    changeMode = function()
+    {
+      onPomodoro = !onPomodoro;
+      
+      if (onPomodoro)
+      {
+        $("#pomodoro-minutes").html(initialPomodoroInterval);
+        $("#pomodoro-container").removeClass("break");
+        $("#pomodoro-container").addClass("pomodoro");
+      }    
+      else
+      {
+        $("#pomodoro-minutes").html(initialBreakInterval);  
+        $("#pomodoro-container").removeClass("pomodoro");
+        $("#pomodoro-container").addClass("break");
+      }
+    }
+
+    pomodoroLoop = function()
+    {
+      console.log(started);
+      if (!started)
+        return;
+      
+      var minute = $("#pomodoro-minutes").html();
+      var second = $("#pomodoro-seconds").html();
+      second--;
+      
+      if (second < 0)
+      {
+        second = 59;
+        minute --;
+      }
+      
+      if (second < 10)
+        second = "0" + second;
+      
+      $("#pomodoro-seconds").html(second);
+      $("#pomodoro-minutes").html(minute);
+      
+      if (minute > 0 || second > 0)
+        setTimeout(pomodoroLoop, 1000);
+      else
+        changeMode();
+    }
+
+    registerPomodoroTimerClick = function()
+    {
+      $("#pomodoro-container").click(function(){
+        started = !started;
+        
+        if (started)
+          pomodoroLoop();    
+      });  
+    }
+
+    init = function()
+    {
+      $("#break-interval").html(initialBreakInterval);
+      $("#pomodoro-interval").html(initialPomodoroInterval);
+      registerDecrementBreakClick();
+      registerIncrementBreakClick();
+      
+      registerDecrementPomodoroClick();
+      registerIncrementPomodoroClick();
+      
+      registerPomodoroTimerClick();
+      
+      $("#pomodoro-minutes").html(initialPomodoroInterval);
+    }
+
+    init();
+  </script>
+
+</body>
+</html>
