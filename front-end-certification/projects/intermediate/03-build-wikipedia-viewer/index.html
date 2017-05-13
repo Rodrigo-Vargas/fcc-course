@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Wikipedia Viewer</title>
+
+  <style>
+    h1 {
+      text-align: center;
+    }
+
+    h2 {
+      margin: 0;
+    }
+
+    #input-query {
+      width: 100%;
+    }
+
+    a:hover {
+      color: #000;
+      text-decoration: none;
+    }
+
+    a {
+      color: #000;
+    }
+
+    #auto-complete-results {
+      background-color: #fff;
+      border: 1px solid #ccc;
+      box-shadow: 10px 10px 5px #ccc;
+      display: inline-block;
+      margin-left: 16.66666667%;
+      margin-top: -50px;
+      width: 66.66666667%;
+      z-index: 9;
+    }
+
+    .auto-complete-result:hover {
+      background-color: #ddd;
+    }
+
+    #container-buttons {
+      margin: 15px auto;
+      width: 200px;
+    }
+
+    #container-btn-search, #container-btn-random {
+      display: inline-block;
+      margin: 0 auto;
+    }
+    .result div {
+      padding: 10px 15px;
+    }
+
+    .result:hover div{
+      background-color: #ddd;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="main">
+      <div class="row">
+        <div class="col-xs-offset-2 col-xs-8">
+          <h1>Wikipedia Viewer</h1>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xs-offset-2 col-xs-8">
+          <input id="input-query" type="text"/>
+        </div>
+      </div>
+      
+      <div id="container-buttons">
+        <div id="container-btn-search">
+          <a id="btn-search" class="btn btn-default">Search</a>
+        </div>
+        <div id="container-btn-random">
+          <a id="btn-random" class="btn btn-default">Random</a>
+        </div>
+      </div>
+      
+      <div id="auto-complete-results"></div>
+      <script id="auto-complete-template" type="text/template">
+        <p class="auto-complete-result">{{title}}</p>
+      </script>
+    </div>
+    
+    <div id="results"></div>
+    <script id="result-template" type="text/template">
+      <a href="{{link}}" class="result">
+        <div>
+          <h2>{{title}}</h2>
+          <p>{{description}}</p>
+        </div>
+      </a>
+    </script>
+  </div>
+
+  <script type="text/javascript">
+    function getTemplate(identifier){
+      return $("#" + identifier + "-template").html();
+    }
+
+    function setHtmlResult(result){
+      var template = getTemplate("result");
+      template = template.replace("{{title}}", result.title);
+      template = template.replace("{{description}}", result.extract);
+      template = template.replace("{{link}}", "//en.wikipedia.org?curid=" +  result.pageid);
+      
+      $("#results").append(template);
+    }
+
+    function setHtmlAutoComplete(result){
+      var template = getTemplate("auto-complete");
+      
+      template = template.replace("{{title}}", result.title);
+      
+      $("#auto-complete-results").append(template);
+    }
+
+    function search(callback, isAutoComplete, openRandom){
+      var query = $("#input-query").val();
+      
+      var dataObject = { action: 'query', generator: 'search', gsrsearch: query, format: 'json', prop: 'pageimages|extracts', pilimit: 'max', exintro: '', explaintext: '', exsentences:1, exlimit: 'max' }
+      
+      if (isAutoComplete)
+        dataObject = {action: 'query', generator: 'allpages', gapfrom: query, format: 'json' }
+      
+      $.ajax({
+        url: '//en.wikipedia.org/w/api.php',
+        data: dataObject,
+        dataType: 'jsonp',
+        success: function (results) {
+          callback(results, openRandom);
+        }
+      });
+    }
+
+    function printAutoComplete(results){
+      $("#auto-complete-results").html("");
+      
+      for (var pageId in results.query.pages)
+        setHtmlAutoComplete(results.query.pages[pageId]);
+        
+      $("#auto-complete-results").show();
+      registerAutoCompleteItemClick();
+    }
+
+    function printResults(results, clickOnRandom){
+      $("#results").html("");
+      
+      for (var pageId in results.query.pages)
+        setHtmlResult(results.query.pages[pageId]);
+      
+      if (clickOnRandom)
+      {
+        var $results = $("#results a");
+        var random = Math.trunc(Math.random() * $results.length);
+        $results.get(random).click();
+      }
+    }
+
+    function registerButtonsEventClick(){
+      $("#btn-search").click(function(){
+        search(printResults, false, false);
+      });
+      
+      $("#btn-random").click(function(){
+        search(printResults, false, true);
+      });
+    }
+
+    function autoComplete(){
+      $("#auto-complete-results").hide();
+      if ($("#input-query").val().length > 1)
+        search(printAutoComplete, true, false);
+    }
+
+    function registerAutoCompleteKeyPress(){
+      $("#input-query").keyup(function() {
+        autoComplete();
+      });
+    }
+
+    function registerAutoCompleteItemClick(){
+      $(".auto-complete-result").click(function(){
+        $("#input-query").val($(this).html());
+        $("#auto-complete-results").hide();
+      });
+    }
+
+    function hideAutoCompleteIfClickOutside(){
+      $(document).mouseup(function (e)
+    {
+        var container = $("#auto-complete-results");
+
+        if (!container.is(e.target) 
+            && container.has(e.target).length === 0)
+        {
+            container.hide();
+        }
+    });
+    }
+
+    $(document).ready(function(){
+      registerButtonsEventClick();
+      registerAutoCompleteKeyPress();
+      hideAutoCompleteIfClickOutside();
+      $("#auto-complete-results").hide();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Twitch TV</title>
+
+  <style>
+    a, h1, h2, a:hover, a:visited {
+      color: #fff;
+    }
+
+    a:hover, a:selected {
+      text-decoration:none;
+    }
+
+    h1 {
+      padding-bottom: 25px;
+      text-align: center;
+    }
+    .container {
+      background-color: #6441a5;
+    }
+
+    #app-nav {
+      list-style: none;
+    }
+
+    #app-nav a {
+      font-size: 18px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    #app-nav a.active, #app-nav a:hover {
+      border-bottom: 1px solid #fff;
+    }
+
+    #twitch-list {
+      padding: 25px;
+    }
+
+    .list-item {
+      border-bottom: 1px solid #fff;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>FreeCodeCamp - Twitch Streamers</h1>
+    <div class="row">
+      <ul id="app-nav" class="row">
+        <li><a href="#" id="btn-show-all" class="active col-xs-4">All</a></li>
+        <li><a href="#" id="btn-show-online" class="col-xs-4">Online</a></li>
+        <li><a href="#" id="btn-show-offline" class="col-xs-4">Offline</a></li>
+      </ul>
+      <div id="twitch-list">
+        <script type="text/template" id="template-item">
+          <div class='list-item {{StatusClass}}'>
+            <a id='streaming-link' class="row" href='http://www.twitch.tv/{{UserLink}}' target='_blank'>
+              <span class="col-xs-5">{{User}}</span>
+              <span id='streaming-status' class="col-xs-7"></span>{{Status}}</a>
+          </div>
+        </script>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var twitchUsers = ["freecodecamp", "brunofin", "comster404", "storbeck", "terakilobyte", "habathcx","RobotCaleb","thomasballinger","noobs2ninjas","beohoff", "esl_sc2"];
+
+    function checkFreeCodeCampStreaming(user, callback) {
+      $.getJSON('https://api.twitch.tv/kraken/streams/' + user)
+        .done(function(data) {
+          if (data.stream == null)
+            callback(user, false);
+          else
+            callback(user, true, data.stream.game + ": " + data.stream.channel.status);
+        }).fail(function(data) {
+          callback(user, null);
+        });
+    }
+
+    function getTemplateListItem() {
+      return $("#template-item").html();
+    }
+
+    function setHtmlListItem(user, status, title) {
+      var template = getTemplateListItem();
+      template = template.replace("{{User}}", user);
+      if (status == null)
+      {
+        template = template.replace("{{Status}}", "Closed Channel");
+        template = template.replace("{{StatusClass}}", "false");
+      }    
+      else
+      {
+        template = template.replace("{{UserLink}}", user);
+        template = template.replace("{{Status}}", status ? title : "Offline");
+        template = template.replace("{{StatusClass}}", status.toString());    
+      }
+        
+      $("#twitch-list").append(template);
+    }
+
+    function registerAppNavButtonClick(){
+      $("#btn-show-all").click(function(){
+        $(".list-item").show();
+        $("#app-nav a").removeClass("active");
+        $("#btn-show-all").addClass("active");
+      });
+      
+      $("#btn-show-online").click(function(){
+        $(".list-item").hide();
+        $(".list-item.true").show();
+        $("#app-nav a").removeClass("active");
+        $("#btn-show-online").addClass("active");
+      });
+      
+      $("#btn-show-offline").click(function(){
+        $(".list-item").hide();
+        $(".list-item.false").show();
+        $("#app-nav a").removeClass("active");
+        $("#btn-show-offline").addClass("active");
+      });
+    }
+
+    function init() {
+      twitchUsers.forEach(function(twitchUser) {
+        checkFreeCodeCampStreaming(twitchUser, setHtmlListItem);
+      });
+      registerAppNavButtonClick();
+    }
+
+    $(document).ready(function() {
+      init();
+    });
+  </script>
+</body>
+</html>

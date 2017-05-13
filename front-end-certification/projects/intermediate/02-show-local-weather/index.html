@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Show Local Weather</title>
+
+  <style>
+    #background {
+      background: url("https://upload.wikimedia.org/wikipedia/commons/7/7e/Night_Sky_Stars_Trees_03.jpg");
+      height: 100%;
+      position:absolute;
+      width: 100%;
+    }
+
+    .container {
+      border: 1px solid #fff;
+      border-radius: 5px;
+      z-index: 99999;
+    }
+
+    #container-city-name, 
+    #container-city-temperature, 
+    #container-city-condition {
+      color: #fff;
+      font-family: Helvetica;
+    }
+
+    #container-city-name {
+      font-size: 36px;
+      padding: 25px;
+    }
+
+    #container-city-condition {
+      font-size: 18px;
+    }
+
+    #container-city-temperature {
+      font-size: 32px;
+    }
+
+    #toogle-unit {
+      background-color: #333;
+      color: #fff;
+      font-size: 18px;  
+      padding: 5px;
+    }
+
+    #toogle-unit:hover {
+      background-color: #222;
+      cursor: pointer;
+      text-decoration:none;
+    }
+  </style>
+</head>
+<body>
+  <div id="background">
+    <div class="container">
+      <div class="row">
+        <div id="container-city-name" class="col-xs-12"><span id="city-name"></span></div>
+      </div>
+
+      <div class="row">
+        <div id="container-city-condition" class="col-xs-4">
+          <span id="city-condition-icon"><img /></span>
+          <span id="city-condition"></span></div>
+      </div>
+
+      <div class="row">
+        <div id="container-city-temperature" class="col-xs-4">
+          <span id="city-temperature"></span>º
+          <a id="toogle-unit"></a>
+          <input id="current-unit" type="hidden">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    function getCurrentPosition(callback)
+    { 
+        if (navigator.geolocation) 
+        {      navigator.geolocation.getCurrentPosition(function(position){
+            callback(position.coords.latitude, position.coords.longitude);        
+          }, showError);
+        }
+    }
+
+    function showError(error){
+      console.log(error);;
+    }
+
+    function getIconUrl(iconCode){
+      return "http://openweathermap.org/img/w/" + iconCode + ".png";
+    }
+
+    function getBeautifulTemperature(uglyTemperature){
+      return uglyTemperature.toString().match(/(.+)\./)[1];
+    }
+
+    function getWeatherOfCity(latitude, longitude) {
+      var url = "http://api.openweathermap.org/data/2.5/weather?lat=" + latitude + "&lon=" + longitude + "&appid=2de143494c0b295cca9337e1e96b00e0&units=metric";
+      
+      $.getJSON(url, function(data){
+        $("#city-temperature").html(getBeautifulTemperature(data.main.temp));
+        $("#city-condition-icon img").attr("src", getIconUrl(data.weather[0].icon));
+        
+        $("#city-name").html(data.name);
+        $("#city-condition").html(data.weather[0].main);
+        $("#current-unit").val("C")
+        $("#toogle-unit").html($("#current-unit").val());
+      });  
+    }
+
+    function registerToogleUnitButtonClick(){
+      $("#toogle-unit").click(function(){
+        var temp = $("#city-temperature").html();
+        
+        if ($("#current-unit").val() == "C")
+        {
+          $("#current-unit").val("F");
+          temp = temp * 1.8 + 32;
+        }      
+        else
+        {
+          $("#current-unit").val("C");
+          temp = (temp - 32) / 1.8;
+        }
+          
+        $("#city-temperature").html(temp)
+        $("#toogle-unit").html($("#current-unit").val());    
+      });  
+    }
+
+    function init() {
+      getCurrentPosition(getWeatherOfCity);
+      registerToogleUnitButtonClick();
+    } 
+
+    $(document).ready(function(){
+      init();
+    });
+    
+  </script>
+</body>
+</html>
