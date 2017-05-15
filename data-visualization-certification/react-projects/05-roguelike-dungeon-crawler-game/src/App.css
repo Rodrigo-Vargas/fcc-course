@@ -1,0 +1,110 @@
+/* Generic clases */
+.pull-left {
+  float: left;
+}
+
+.clearfix:before,
+.clearfix:after {
+  content: " ";
+  display: table;
+}
+.clearfix:after {
+  clear: both;
+}
+
+.app {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+}
+
+.app-wrap {
+  margin: 200px 0 100px;
+}
+
+.commands {
+  padding: 20px;
+  text-align: right;
+  width: 30%;
+}
+
+.player-info span {
+  display: block;
+}
+
+.main-wrap {
+  width: 30%;
+}
+
+.map-wrap {
+  width: 300px;
+}
+
+.game-over-wrap {
+  background-color: rgba(0,0,0, 0.4);
+  margin: 100px auto;
+  height: 300px;
+  width: 500px;
+}
+
+.game-over-wrap h2 {
+  display: block;
+  font-size: 20px;
+  font-weight: bold; 
+  padding-top: 80px; 
+  text-align: center;
+}
+
+.game-over-wrap {
+  text-align: center;
+}
+
+.map {
+  border-collapse: collapse;
+}
+
+.sqm {
+  background-color: #ccc;
+  height: 30px;
+  width: 30px;
+}
+
+.sqm.boundary {
+  background-color: #000;
+}
+
+.sqm.player {
+  background-color: #663399;
+}
+
+.sqm.ladder {
+  background: url('/sprites/ladder.png');
+  background-size: cover;
+  background-color: #8b4513;
+}
+
+.sqm.enemy {
+  background-color: #ff0000;
+}
+
+/* Enemies */
+
+.sqm.rat {
+  background: url('/sprites/rat.png');
+}
+
+.sqm.orc {
+  background: url('/sprites/orc.png');
+}
+
+/* Itens */
+.sqm.minor-health-potion {
+  background: url('/sprites/potions.png');
+}
+
+.sqm.knife {
+  background: url('/sprites/knife.png');
+}
+
