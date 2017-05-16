@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Game of life</title>
+
+  <style>
+    *
+      box-sizing: border-box
+
+    body
+      background-color: #bbb
+      text-align: center
+
+    header
+      background-color: #10b810
+      color: #fff
+      margin: 10px 0
+      padding: 10px 0
+
+    header h1
+      margin: 0
+
+    .board
+      border: 5px solid #014001
+      border-collapse: collapse
+      border-radius: 5px
+
+    .black
+      background-color: green
+
+    .white
+      background-color: #fff
+
+    .row
+      border: 1px solid #ccc
+
+    .cell
+      border: 1px solid #ccc
+      height: 15px
+      width: 15px
+
+    .center-block
+      margin: 0 auto
+
+    .btn
+      background-color: #fff
+      border: 1px solid #000
+      border-radius: 5px
+      color: #008000
+      cursor: pointer
+      display: block
+      margin-bottom: 10px
+      padding: 10px 20px
+
+    .btn:hover
+      background-color: #008000
+      color: #eee
+
+    .block
+      display: block
+
+    .game-wrap
+      background-color: #333
+      border: 10px solid #008000
+      border-radius: 5px
+      margin: 0 auto
+      padding: 10px
+      width: 1024px
+
+    .nav-controls
+      padding: 20px 20px
+      width: 20%
+
+    .nav-controls .btn
+      text-align: right
+
+    .board-wrap
+      width: 80%
+
+    .clearfix:before, .clearfix:after
+      display: table
+      content: " "
+
+    .clearfix:after
+      clear: both
+
+    .pull-left
+      float: left
+
+    .game-info
+      background-color: #fff
+      border: 4px solid #008000
+      border-radius: 5px
+      margin-top: 20px
+      padding: 10px
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    class BoardCell extends React.Component {
+   constructor(props){
+      super(props);
+      this.state = {
+         cellNumber : props.cellNumber,
+         onClick : props.onClick
+      }
+   }
+
+   onClick(){
+      this.state.onClick(this.state.cellNumber);
+   }
+
+   render() {
+      var color = this.props.value.status ? 'black' : 'white';
+
+      return (
+         <td ref="cell" data-north={this.props.value.north.toString()} 
+                  className={"cell " + color}
+                  onClick={this.onClick.bind(this)}>
+            
+         </td>
+      );
+   }
+}
+
+class BoardRow extends React.Component {
+   constructor(props){
+      super(props);
+      this.state = {
+         onClick : props.onClick,
+         rowNumber : props.rowNumber
+      }
+   }
+
+   onCellClick(cellNumber){
+      this.state.onClick(this.state.rowNumber, cellNumber);
+   }
+
+   render() {
+      const cells = this.props.row.map((cell, i) =>
+         <BoardCell key={i} value={cell} cellNumber={i} onClick={this.onCellClick.bind(this)} /> 
+      ,this);
+
+      return (
+         <tr className="row">
+            { cells }
+         </tr>
+      );
+   }
+}
+
+class App extends React.Component {
+   constructor(props){
+      super(props);
+      var rows = 40;
+      var columns = 40;
+      var matrix = this.generateMatrix(rows, columns);
+
+      this.state = {
+         matrix: matrix,
+         generations : 0,
+         start : false,
+         rows : rows,
+         columns : columns,
+         tickTime : 500
+      }    
+   }
+
+   componentDidMount(){
+      this.addGeneration();
+   }
+
+   generateMatrix(rows, columns){
+      var matrix = [];
+      var that = this;
+
+      for (var r = 0; r < rows; r++)
+      {
+         for (var c = 0; c < columns; c++)
+         {
+            if (c === 0)
+               matrix[r] = []
+
+            matrix[r].push(that.generateCell());
+         }
+      }
+
+      return matrix;
+   }
+
+   generateCell(){
+      return {
+         status : this.generateStatus(),
+         north : false,
+         south : false,
+         west : false,
+         east : false,
+         northEast : false,
+         northWest : false,
+         southEast : false,
+         southWest : false
+      }
+   }
+
+   generateStatus(){
+      var random = (Math.random() * 10);
+      
+      if (random <= 5)
+         return false;
+      else
+         return true;
+   }
+
+   assignNeighboardStatusToMatrix(){
+      var matrix = this.state.matrix;
+
+      for (var r = 0; r < matrix.length; r++)
+      {
+         for (var c = 0; c < matrix[r].length; c++)
+         {
+            var cell = matrix[r][c];
+            cell.north = this.getStatusOfPosition(r - 1, c);
+            cell.south = this.getStatusOfPosition(r + 1, c);
+            cell.east = this.getStatusOfPosition(r, c - 1 );
+            cell.west = this.getStatusOfPosition(r, c + 1 );
+            
+            cell.southWest = this.getStatusOfPosition(r + 1, c + 1);
+            cell.northWest = this.getStatusOfPosition(r - 1, c + 1);
+
+            cell.southEast = this.getStatusOfPosition(r + 1, c - 1);
+            cell.northEast = this.getStatusOfPosition(r - 1, c - 1);
+         }
+      }
+   }
+
+   getStatusOfPosition(x, y){
+      var matrix = this.state.matrix;
+
+      if (x < 0)
+         return false;
+
+      if (x >= matrix.length)
+         return false;
+    
+      if (y < 0)
+         return false;
+
+      if (y >= matrix[x].length)
+         return false;
+
+      return matrix[x][y].status;
+   }
+
+   calculateNextStatesOfMatrix(){
+      var matrix = this.state.matrix;
+
+      for (var r = 0; r < matrix.length; r++)
+      {
+         for (var c = 0; c < matrix[r].length; c++)
+         {
+            var livingNeighbours = 0;
+
+            if (matrix[r][c].north)
+               livingNeighbours++;
+            
+            if (matrix[r][c].south)
+               livingNeighbours++;
+            
+            if (matrix[r][c].west)
+               livingNeighbours++;
+            
+            if (matrix[r][c].east)
+               livingNeighbours++;
+            
+            if (matrix[r][c].southEast)
+               livingNeighbours++;
+            
+            if (matrix[r][c].southWest)
+               livingNeighbours++;
+            
+            if (matrix[r][c].northEast)
+               livingNeighbours++;
+            
+            if (matrix[r][c].northWest)
+               livingNeighbours++;
+            
+            if (matrix[r][c].status)
+            {
+               if (livingNeighbours < 2)
+                  matrix[r][c].status = false;
+
+               if (livingNeighbours === 2 || livingNeighbours === 3)
+                  matrix[r][c].status = true;
+
+               if (livingNeighbours > 3)
+                  matrix[r][c].status = false;
+            }
+            else
+            {
+               if (livingNeighbours === 3)               
+                  matrix[r][c].status = true;
+            }
+         }
+      }
+
+      this.setState({matrix : matrix});
+   }
+
+   addGeneration(){
+      if (!this.state.start)
+         return;      
+
+      this.assignNeighboardStatusToMatrix();
+      this.calculateNextStatesOfMatrix();
+
+      var generations = this.state.generations;
+      generations++;
+
+      this.setState({ generations : generations });
+
+      var that = this;
+      setTimeout(function(){
+         that.addGeneration();
+      }, that.state.tickTime);
+   }
+
+   // Buttons
+   clearBoard(){
+      var matrix = this.state.matrix;
+
+      for (var r = 0; r < matrix.length; r++)
+      {
+         for (var c = 0; c < matrix[r].length; c++)
+         {
+            matrix[r][c].status = false;
+         }
+      }
+
+      this.setState({ matrix : matrix});
+   }
+
+   startGame(){
+      if (this.state.start)
+         return;
+      
+      this.setState({start : true});   
+
+      var that = this;
+      setTimeout(function() {
+         that.addGeneration();   
+      }, that.state.tickTime);      
+   }
+
+   pauseGame(){
+      this.setState({start : false});
+   }
+
+   toogleCellStatus(appData, row, column, status){
+      var matrix = appData.state.matrix;
+      matrix[row, column] = !status;
+
+      appData.setState({ matrix : matrix});
+   }
+
+   handleChildrenClick(rowData, event){
+      console.log(rowData, event);
+   }
+
+   handleRowClick(rowNumber, cellNumber){
+      var matrix = this.state.matrix;
+
+      matrix[rowNumber][cellNumber].status = !matrix[rowNumber][cellNumber].status;
+
+      this.setState({ matrix : matrix });
+   }
+
+   render() {
+      const rows = this.state.matrix.map((row, i) =>
+         <BoardRow key={i} row={row} 
+                        rowNumber={i}
+                        onClick={this.handleRowClick.bind(this)} />    
+      )
+
+      return (
+         <div className="App">
+            <header>
+               <h1 className="page-title">React JS - Game of life</h1>
+            </header>
+            <div className="game-wrap">
+               <div className="clearfix">
+                  <div className="pull-left nav-controls">
+                     <a className="btn" onClick={this.startGame.bind(this)}>Start</a>
+                     <a className="btn" onClick={this.clearBoard.bind(this)}>Clear board</a>
+                     <a className="btn" onClick={this.pauseGame.bind(this)}>Pause</a>
+
+                      <div className="game-info">
+                        <span className="block">Generations: { this.state.generations }</span>
+                     </div>
+                  </div>
+
+                  <div className="pull-left board-wrap">
+                     <table className="board">
+                        <tbody>
+                           { rows }
+                        </tbody>
+                     </table>
+                  </div>
+               </div>               
+            </div>
+         </div>
+      );
+   }
+}
+
+
+ReactDOM.render(
+  <App />,
+  document.getElementById('root')
+);
+
+
+  </script>
+</body>
+</html>

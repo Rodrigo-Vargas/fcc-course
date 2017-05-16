@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Recipe box</title>
+
+  <style>
+    header
+       background-color: green
+       box-shadow: #111 -1px -4px 20px 2px
+       display: block
+       height: 50px
+       margin:  0 0 5px 0
+
+    .menu-switch-btn
+       color: #fff
+       display: inline-block
+       font-size: 22px
+       padding: 14px
+       vertical-align: middle
+
+    .page-title
+       color: #fff
+       display: inline-block
+       line-height: 50px
+       vertical-align: middle
+
+    menu
+       background-color: #fff
+       margin: 0
+       padding: 0
+       position: absolute
+       left: -200px
+       top: 0
+       height: 100%
+       width: 200px
+
+    .opened-menu menu
+       left: 0px
+
+    .cloak
+       background-color: rgba(0, 0, 0, 0.7)
+       position: absolute
+       top: 0
+       left: 0
+       height: 100%
+       width: 100%
+       visibility: hidden
+
+    .opened-menu .cloak
+       visibility: visible
+
+    .book-title 
+       text-align: center
+
+    .list
+       padding: 0
+
+    .list-item
+       border-bottom: 1px solid #ccc
+       height: 48px
+       list-style: none
+
+    .list-item a
+       color: #000
+       display: block
+       font-family: 'Roboto'
+       font-size: 16px
+       padding: 20px 0
+
+    .btn
+       margin-left: 10px
+       margin-right: 10px
+  </style>
+</head>
+<body>
+      <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+
+    <div id="root"></div>
+
+    <script type="text/babel">
+      var { Router, Route, IndexRoute, Link, browserHistory } = ReactRouter
+
+      var RecipeProvider = React.createClass({
+         slug: function(name){
+            var slugName = name.replace(' ', '');
+            slugName = slugName.toLowerCase();
+
+            return slugName;
+         },
+
+         save: function(newRecipe){
+            var that = this;
+            var recipesJson = this.all();
+
+            if (newRecipe.slugName)
+            {
+               for(var i = 0; i < recipesJson.length; i++)
+               {
+                  if (recipesJson[i].slugName === newRecipe.slugName)
+                  {
+                     newRecipe.slugName = that.slug(newRecipe.name);
+                     recipesJson[i] = newRecipe;
+                     break;
+                  }
+               }
+            }
+            else
+            {
+               newRecipe.slugName = this.slug(newRecipe.name);
+               recipesJson.push(newRecipe);
+            }
+
+            var recipesString = JSON.stringify(recipesJson);
+            
+            localStorage.setItem('_username_recipes', recipesString);
+         },
+
+         destroy: function(recipeSlug){
+            var recipesJson = this.all();
+
+            var targetIndex = -1;
+
+            for(var i = 0; i < recipesJson.length; i++)
+            {
+               if (recipesJson[i].slugName === recipeSlug)
+               {
+                  targetIndex = i;
+               }
+            }
+
+            if (targetIndex > -1)
+               recipesJson.splice(targetIndex, 1);
+
+            var recipesString = JSON.stringify(recipesJson);
+            
+            localStorage.setItem('_username_recipes', recipesString);  
+         },
+
+         all: function(){
+            var recipesString = localStorage.getItem('_username_recipes');
+
+            if (!recipesString)
+               recipesString = '[]';
+
+            return JSON.parse(recipesString);
+         },
+
+         find: function(slugName){
+            var recipesJson = this.all();
+
+            var targetRecipe = {};
+
+            recipesJson.forEach(function(recipe){
+               if (recipe.slugName === slugName)
+               {
+                  targetRecipe = recipe;
+                  return;
+               }
+            })
+
+            return targetRecipe;
+         },
+        
+        render: function(){
+          
+        }
+      });
+
+      var Shell = React.createClass({
+          getLinks: function(){
+            return [
+                  {
+                      url : "/",
+                      name: "Recipe book"                
+                  },
+                  {
+                      url : "/about",
+                      name: "About"
+                  }
+              ];
+          },
+          showMenu: function(){
+              document.getElementById('root').className = 'opened-menu';
+          },
+          hideMenu: function() {
+              document.getElementById('root').className = '';
+          },    
+          render: function() {
+              const listItems = this.getLinks().map((link) =>
+                  <li className="list-item" key={link.name} onClick={this.hideMenu}>
+                      <Link to={link.url}>{link.name}</Link>                            
+                  </li>        
+              );
+
+              return (
+                  <div>
+                      <div className="cloak" onClick={ this.hideMenu }></div>
+                      <header>
+                          <a className="menu-switch-btn" onClick={ this.showMenu }>
+                              <i className="fa fa-bars"></i>
+                          </a>
+                          <span className="page-title"> { this.props.pageTitle }</span>
+                      </header>
+                      <menu>
+                          <ul className="list">
+                              {listItems}
+                          </ul>
+                      </menu>                
+                  </div>
+              );
+          }
+      });
+
+      var RecipeList = React.createClass({
+         render: function() {
+           var recipeProvider = new RecipeProvider();
+            const recipes = recipeProvider.all().map((recipe) =>
+                          <ListItem key={recipe.name} title={recipe.name} link={'/recipes/' + recipe.slugName} />
+                      );
+            return (
+               <div>
+                  <Shell pageTitle="Recipe book" />
+                  <div className="container">
+                     <div>
+                        <ul className="list">
+                          { recipes }
+                        </ul>
+                     </div>
+
+                     <Link className="btn btn-primary" to={'/recipes/add'}>Add recipe</Link>
+                  </div>
+               </div>
+            );
+         }
+      });
+
+      var ListItem = React.createClass({
+         render() {
+            return (
+               <li className="list-item">
+                  <Link to={this.props.link}>{this.props.title}</Link>
+               </li>
+            );
+         }
+      });
+
+      var RecipeForm = React.createClass({
+        getInitialState: function() {
+              return {
+                newIngredient : '',
+                recipe : { 
+                  name : '',
+                  slugName : '',
+                  ingredients: []
+                },
+                showSaveAlert: false
+            };
+          },
+          
+        componentDidMount: function() {
+          if (!this.props.params.name)
+            return;         
+
+          var recipeProvider = new RecipeProvider();
+          var recipe = recipeProvider.find(this.props.params.name)
+            
+          this.setState({
+            recipe: recipe
+          });
+        },
+
+        addIngredient: function(){
+            var recipe = this.state.recipe;
+            if (!recipe.ingredients)
+               recipe.ingredients = [];
+
+            recipe.ingredients.push(this.state.newIngredient);
+
+            this.setState({ recipe: recipe });
+            this.setState({ newIngredient: '' });
+         },
+        
+        removeIngredient: function(index) {
+            var recipe = this.state.recipe;
+            
+            var ingredients = recipe.ingredients.filter(function (recipe, i) {
+              return i !== index;
+            })
+
+            recipe.ingredients = ingredients;
+
+            this.setState({ recipe: recipe });
+         },
+         
+        handleIngredientChange: function(event){
+            this.setState({ newIngredient: event.target.value });
+        },
+        
+        handleNameChange: function(event){
+            var recipe = this.state.recipe;
+            recipe.name = event.target.value;
+
+            this.setState({ recipe: recipe });
+         },
+
+        handleSubmit: function(event){
+          var recipeProvider = new RecipeProvider();
+          recipeProvider.save(this.state.recipe);
+          
+          this.setState({showSaveAlert : true});
+            
+          event.preventDefault();
+        },
+
+        render: function() {
+            var ingredients;
+            if (this.state.recipe.ingredients)
+            {
+               ingredients = this.state.recipe.ingredients.map((ingredient, index) =>
+                  <tr key={ingredient}>
+                     <td>{ingredient}</td>
+                     <td>
+                        <a onClick={this.removeIngredient.bind(this, index)}>
+                           <i className="fa fa-trash"></i>
+                        </a>
+                     </td>
+                  </tr>
+               );
+            }
+                                                               
+            var form = ( <form onSubmit={this.handleSubmit}>
+                        <div className="form-group">
+                           <label>Name</label>
+                           <input type="text" className="form-control"
+                                                name="name"
+                                                onChange={this.handleNameChange}
+                                                value={this.state.recipe.name} />
+                        </div>
+                        
+                        <div className="form-group">
+                           <label>Ingredientes</label>
+                           <table className="table table-stripped">
+                              <tbody>
+                                 { ingredients}
+                                 <tr>
+                                    <td>
+                                       <input   type="text"
+                                                className="form-control" 
+                                                onChange={this.handleIngredientChange}
+                                                value={this.state.newIngredient}/>
+                                    </td>
+                                    <td>
+                                       <a onClick={this.addIngredient} className="btn btn-success">+</a>
+                                    </td>
+                                    
+                                 </tr>
+                              </tbody>
+                           </table>
+                        </div>
+                        
+                        <div className="form-group">
+                           <button type="submit" className="btn btn-success">Salvar</button>
+                        </div>
+                     </form>
+                   ); 
+              
+              var saveAlert = (
+                                <div>
+                                  <span>Recipe saved sucessfully.</span>
+                                  <Link to={'/'}>Go home</Link>  
+                                </div>
+                              );
+
+            return (
+               <div>
+                 <Shell pageTitle={"Edit - " + this.state.recipe.name} />
+                  <div className="container">
+                     { this.state.showSaveAlert ? saveAlert : form }
+                  </div>
+               </div>
+            );
+         }
+      });
+        
+      var About = React.createClass({
+         render: function() {
+            return (
+               <div>
+                  <Shell pageTitle="About" />
+
+                  <div className="container">
+                     <h2>Recipe box</h2>
+                     <span>Made by:</span>
+                     <span>Rodrigo Vargas</span>               
+                  </div>
+               </div>
+            );
+         }
+      });
+
+      var Recipe = React.createClass({
+        getInitialState: function() {
+          return {
+            recipe : {},
+            showRemovedMessage : false
+          };
+        },
+
+        destroyRecipe: function(){
+          var recipeProvider = new RecipeProvider();
+          recipeProvider.destroy(this.state.recipe.slugName);
+          this.setState({ showRemovedMessage : true });
+        },
+
+        componentDidMount: function() {
+          if (!this.props.params.name)
+            return;         
+
+            var recipeProvider = new RecipeProvider();
+            var recipe = recipeProvider.find(this.props.params.name)
+            this.setState({
+               recipe: recipe
+            });
+         },
+
+         render: function() {
+            var ingredients;
+            if (this.state.recipe.ingredients)
+            {
+               ingredients = this.state.recipe.ingredients.map((ingredient) =>
+                  <li key={ingredient}>
+                     { ingredient }
+                  </li>
+               );
+            }
+            else
+            {
+               ingredients = 'This recipe has no ingredients';         
+            }
+                                                               
+            var removeAlert = (
+                              <div>
+                                <span>Recipe removed sucessfully.</span>
+                                <Link to={'/'}>Go home</Link>  
+                              </div>
+                            );
+              
+              var recipeBody = (
+              <div>
+              <h1>{ this.state.recipe.name }</h1>
+                     <h3>Ingredients</h3>
+                     <ul>
+                       { ingredients }
+                     </ul>
+                     <Link  to={'/recipes/' + this.state.recipe.slugName + '/edit'} 
+                            className="btn btn-primary">Edit</Link>
+                     <a onClick={this.destroyRecipe} className="btn btn-danger">Remove</a>
+                     <Link  to={'/'} 
+                            className="btn btn-primary">Back</Link>
+                  </div>
+              
+              );
+
+            return (
+               <div>
+                 <Shell pageTitle={this.state.recipe.name} />
+                  <div className="container">
+                    { this.state.showRemovedMessage ? removeAlert : recipeBody}
+                    
+                  </div>
+               </div>
+            );
+         }
+      });
+        
+      ReactDOM.render((
+        <Router>
+          <Route path="/" component={RecipeList} />
+          <Route path="/"                   component={RecipeList}></Route>
+          <Route path="/about"              component={About}></Route>
+          <Route path="/recipes/add"        component={RecipeForm}></Route>
+          <Route path="/recipes/:name"      component={Recipe}></Route>
+          <Route path="/recipes/:name/edit" component={RecipeForm}></Route>
+          
+        </Router>
+      ), document.getElementById('root'))
+
+
+    </script>
+
+</body>
+</html>
