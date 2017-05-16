@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>National contiguity</title>
+
+  <style>
+    circle {
+      stroke-width: 1.5px;
+    }
+
+    line {
+      stroke: #999;
+    }
+
+    .tooltip {
+      background-color: #fff;
+      position: absolute;
+      width: 200px;
+      height: 38px;
+      pointer-events: none;
+    }
+
+    .flag {
+      background:url(https://dl.dropboxusercontent.com/u/64467477/country%20data%20for%20force%20directed%20graph/flags.png) no-repeat;
+      height: 11px;
+      position: absolute;
+      width: 16px;
+    }
+
+    .flag.flag-ad {background-position: -16px 0}
+    .flag.flag-ae {background-position: -32px 0}
+    .flag.flag-af {background-position: -48px 0}
+    .flag.flag-ag {background-position: -64px 0}
+    .flag.flag-ai {background-position: -80px 0}
+    .flag.flag-al {background-position: -96px 0}
+    .flag.flag-am {background-position: -112px 0}
+    .flag.flag-an {background-position: -128px 0}
+    .flag.flag-ao {background-position: -144px 0}
+    .flag.flag-ar {background-position: -160px 0}
+    .flag.flag-as {background-position: -176px 0}
+    .flag.flag-at {background-position: -192px 0}
+    .flag.flag-au {background-position: -208px 0}
+    .flag.flag-aw {background-position: -224px 0}
+    .flag.flag-az {background-position: -240px 0}
+    .flag.flag-ba {background-position: 0 -11px}
+    .flag.flag-bb {background-position: -16px -11px}
+    .flag.flag-bd {background-position: -32px -11px}
+    .flag.flag-be {background-position: -48px -11px}
+    .flag.flag-bf {background-position: -64px -11px}
+    .flag.flag-bg {background-position: -80px -11px}
+    .flag.flag-bh {background-position: -96px -11px}
+    .flag.flag-bi {background-position: -112px -11px}
+    .flag.flag-bj {background-position: -128px -11px}
+    .flag.flag-bm {background-position: -144px -11px}
+    .flag.flag-bn {background-position: -160px -11px}
+    .flag.flag-bo {background-position: -176px -11px}
+    .flag.flag-br {background-position: -192px -11px}
+    .flag.flag-bs {background-position: -208px -11px}
+    .flag.flag-bt {background-position: -224px -11px}
+    .flag.flag-bv {background-position: -240px -11px}
+    .flag.flag-bw {background-position: 0 -22px}
+    .flag.flag-by {background-position: -16px -22px}
+    .flag.flag-bz {background-position: -32px -22px}
+    .flag.flag-ca {background-position: -48px -22px}
+    .flag.flag-catalonia {background-position: -64px -22px}
+    .flag.flag-cd {background-position: -80px -22px}
+    .flag.flag-cf {background-position: -96px -22px}
+    .flag.flag-cg {background-position: -112px -22px}
+    .flag.flag-ch {background-position: -128px -22px}
+    .flag.flag-ci {background-position: -144px -22px}
+    .flag.flag-ck {background-position: -160px -22px}
+    .flag.flag-cl {background-position: -176px -22px}
+    .flag.flag-cm {background-position: -192px -22px}
+    .flag.flag-cn {background-position: -208px -22px}
+    .flag.flag-co {background-position: -224px -22px}
+    .flag.flag-cr {background-position: -240px -22px}
+    .flag.flag-cu {background-position: 0 -33px}
+    .flag.flag-cv {background-position: -16px -33px}
+    .flag.flag-cw {background-position: -32px -33px}
+    .flag.flag-cy {background-position: -48px -33px}
+    .flag.flag-cz {background-position: -64px -33px}
+    .flag.flag-de {background-position: -80px -33px}
+    .flag.flag-dj {background-position: -96px -33px}
+    .flag.flag-dk {background-position: -112px -33px}
+    .flag.flag-dm {background-position: -128px -33px}
+    .flag.flag-do {background-position: -144px -33px}
+    .flag.flag-dz {background-position: -160px -33px}
+    .flag.flag-ec {background-position: -176px -33px}
+    .flag.flag-ee {background-position: -192px -33px}
+    .flag.flag-eg {background-position: -208px -33px}
+    .flag.flag-eh {background-position: -224px -33px}
+    .flag.flag-england {background-position: -240px -33px}
+    .flag.flag-er {background-position: 0 -44px}
+    .flag.flag-es {background-position: -16px -44px}
+    .flag.flag-et {background-position: -32px -44px}
+    .flag.flag-eu {background-position: -48px -44px}
+    .flag.flag-fi {background-position: -64px -44px}
+    .flag.flag-fj {background-position: -80px -44px}
+    .flag.flag-fk {background-position: -96px -44px}
+    .flag.flag-fm {background-position: -112px -44px}
+    .flag.flag-fo {background-position: -128px -44px}
+    .flag.flag-fr {background-position: -144px -44px}
+    .flag.flag-ga {background-position: -160px -44px}
+    .flag.flag-gb {background-position: -176px -44px}
+    .flag.flag-gd {background-position: -192px -44px}
+    .flag.flag-ge {background-position: -208px -44px}
+    .flag.flag-gf {background-position: -224px -44px}
+    .flag.flag-gg {background-position: -240px -44px}
+    .flag.flag-gh {background-position: 0 -55px}
+    .flag.flag-gi {background-position: -16px -55px}
+    .flag.flag-gl {background-position: -32px -55px}
+    .flag.flag-gm {background-position: -48px -55px}
+    .flag.flag-gn {background-position: -64px -55px}
+    .flag.flag-gp {background-position: -80px -55px}
+    .flag.flag-gq {background-position: -96px -55px}
+    .flag.flag-gr {background-position: -112px -55px}
+    .flag.flag-gs {background-position: -128px -55px}
+    .flag.flag-gt {background-position: -144px -55px}
+    .flag.flag-gu {background-position: -160px -55px}
+    .flag.flag-gw {background-position: -176px -55px}
+    .flag.flag-gy {background-position: -192px -55px}
+    .flag.flag-hk {background-position: -208px -55px}
+    .flag.flag-hm {background-position: -224px -55px}
+    .flag.flag-hn {background-position: -240px -55px}
+    .flag.flag-hr {background-position: 0 -66px}
+    .flag.flag-ht {background-position: -16px -66px}
+    .flag.flag-hu {background-position: -32px -66px}
+    .flag.flag-ic {background-position: -48px -66px}
+    .flag.flag-id {background-position: -64px -66px}
+    .flag.flag-ie {background-position: -80px -66px}
+    .flag.flag-il {background-position: -96px -66px}
+    .flag.flag-im {background-position: -112px -66px}
+    .flag.flag-in {background-position: -128px -66px}
+    .flag.flag-io {background-position: -144px -66px}
+    .flag.flag-iq {background-position: -160px -66px}
+    .flag.flag-ir {background-position: -176px -66px}
+    .flag.flag-is {background-position: -192px -66px}
+    .flag.flag-it {background-position: -208px -66px}
+    .flag.flag-je {background-position: -224px -66px}
+    .flag.flag-jm {background-position: -240px -66px}
+    .flag.flag-jo {background-position: 0 -77px}
+    .flag.flag-jp {background-position: -16px -77px}
+    .flag.flag-ke {background-position: -32px -77px}
+    .flag.flag-kg {background-position: -48px -77px}
+    .flag.flag-kh {background-position: -64px -77px}
+    .flag.flag-ki {background-position: -80px -77px}
+    .flag.flag-km {background-position: -96px -77px}
+    .flag.flag-kn {background-position: -112px -77px}
+    .flag.flag-kp {background-position: -128px -77px}
+    .flag.flag-kr {background-position: -144px -77px}
+    .flag.flag-kurdistan {background-position: -160px -77px}
+    .flag.flag-kw {background-position: -176px -77px}
+    .flag.flag-ky {background-position: -192px -77px}
+    .flag.flag-kz {background-position: -208px -77px}
+    .flag.flag-la {background-position: -224px -77px}
+    .flag.flag-lb {background-position: -240px -77px}
+    .flag.flag-lc {background-position: 0 -88px}
+    .flag.flag-li {background-position: -16px -88px}
+    .flag.flag-lk {background-position: -32px -88px}
+    .flag.flag-lr {background-position: -48px -88px}
+    .flag.flag-ls {background-position: -64px -88px}
+    .flag.flag-lt {background-position: -80px -88px}
+    .flag.flag-lu {background-position: -96px -88px}
+    .flag.flag-lv {background-position: -112px -88px}
+    .flag.flag-ly {background-position: -128px -88px}
+    .flag.flag-ma {background-position: -144px -88px}
+    .flag.flag-mc {background-position: -160px -88px}
+    .flag.flag-md {background-position: -176px -88px}
+    .flag.flag-me {background-position: -192px -88px}
+    .flag.flag-mg {background-position: -208px -88px}
+    .flag.flag-mh {background-position: -224px -88px}
+    .flag.flag-mk {background-position: -240px -88px}
+    .flag.flag-ml {background-position: 0 -99px}
+    .flag.flag-mm {background-position: -16px -99px}
+    .flag.flag-mn {background-position: -32px -99px}
+    .flag.flag-mo {background-position: -48px -99px}
+    .flag.flag-mp {background-position: -64px -99px}
+    .flag.flag-mq {background-position: -80px -99px}
+    .flag.flag-mr {background-position: -96px -99px}
+    .flag.flag-ms {background-position: -112px -99px}
+    .flag.flag-mt {background-position: -128px -99px}
+    .flag.flag-mu {background-position: -144px -99px}
+    .flag.flag-mv {background-position: -160px -99px}
+    .flag.flag-mw {background-position: -176px -99px}
+    .flag.flag-mx {background-position: -192px -99px}
+    .flag.flag-my {background-position: -208px -99px}
+    .flag.flag-mz {background-position: -224px -99px}
+    .flag.flag-na {background-position: -240px -99px}
+    .flag.flag-nc {background-position: 0 -110px}
+    .flag.flag-ne {background-position: -16px -110px}
+    .flag.flag-nf {background-position: -32px -110px}
+    .flag.flag-ng {background-position: -48px -110px}
+    .flag.flag-ni {background-position: -64px -110px}
+    .flag.flag-nl {background-position: -80px -110px}
+    .flag.flag-no {background-position: -96px -110px}
+    .flag.flag-np {background-position: -112px -110px}
+    .flag.flag-nr {background-position: -128px -110px}
+    .flag.flag-nu {background-position: -144px -110px}
+    .flag.flag-nz {background-position: -160px -110px}
+    .flag.flag-om {background-position: -176px -110px}
+    .flag.flag-pa {background-position: -192px -110px}
+    .flag.flag-pe {background-position: -208px -110px}
+    .flag.flag-pf {background-position: -224px -110px}
+    .flag.flag-pg {background-position: -240px -110px}
+    .flag.flag-ph {background-position: 0 -121px}
+    .flag.flag-pk {background-position: -16px -121px}
+    .flag.flag-pl {background-position: -32px -121px}
+    .flag.flag-pm {background-position: -48px -121px}
+    .flag.flag-pn {background-position: -64px -121px}
+    .flag.flag-pr {background-position: -80px -121px}
+    .flag.flag-ps {background-position: -96px -121px}
+    .flag.flag-pt {background-position: -112px -121px}
+    .flag.flag-pw {background-position: -128px -121px}
+    .flag.flag-py {background-position: -144px -121px}
+    .flag.flag-qa {background-position: -160px -121px}
+    .flag.flag-re {background-position: -176px -121px}
+    .flag.flag-ro {background-position: -192px -121px}
+    .flag.flag-rs {background-position: -208px -121px}
+    .flag.flag-ru {background-position: -224px -121px}
+    .flag.flag-rw {background-position: -240px -121px}
+    .flag.flag-sa {background-position: 0 -132px}
+    .flag.flag-sb {background-position: -16px -132px}
+    .flag.flag-sc {background-position: -32px -132px}
+    .flag.flag-scotland {background-position: -48px -132px}
+    .flag.flag-sd {background-position: -64px -132px}
+    .flag.flag-se {background-position: -80px -132px}
+    .flag.flag-sg {background-position: -96px -132px}
+    .flag.flag-sh {background-position: -112px -132px}
+    .flag.flag-si {background-position: -128px -132px}
+    .flag.flag-sk {background-position: -144px -132px}
+    .flag.flag-sl {background-position: -160px -132px}
+    .flag.flag-sm {background-position: -176px -132px}
+    .flag.flag-sn {background-position: -192px -132px}
+    .flag.flag-so {background-position: -208px -132px}
+    .flag.flag-somaliland {background-position: -224px -132px}
+    .flag.flag-sr {background-position: -240px -132px}
+    .flag.flag-ss {background-position: 0 -143px}
+    .flag.flag-st {background-position: -16px -143px}
+    .flag.flag-sv {background-position: -32px -143px}
+    .flag.flag-sx {background-position: -48px -143px}
+    .flag.flag-sy {background-position: -64px -143px}
+    .flag.flag-sz {background-position: -80px -143px}
+    .flag.flag-tc {background-position: -96px -143px}
+    .flag.flag-td {background-position: -112px -143px}
+    .flag.flag-tf {background-position: -128px -143px}
+    .flag.flag-tg {background-position: -144px -143px}
+    .flag.flag-th {background-position: -160px -143px}
+    .flag.flag-tibet {background-position: -176px -143px}
+    .flag.flag-tj {background-position: -192px -143px}
+    .flag.flag-tk {background-position: -208px -143px}
+    .flag.flag-tl {background-position: -224px -143px}
+    .flag.flag-tm {background-position: -240px -143px}
+    .flag.flag-tn {background-position: 0 -154px}
+    .flag.flag-to {background-position: -16px -154px}
+    .flag.flag-tr {background-position: -32px -154px}
+    .flag.flag-tt {background-position: -48px -154px}
+    .flag.flag-tv {background-position: -64px -154px}
+    .flag.flag-tw {background-position: -80px -154px}
+    .flag.flag-tz {background-position: -96px -154px}
+    .flag.flag-ua {background-position: -112px -154px}
+    .flag.flag-ug {background-position: -128px -154px}
+    .flag.flag-um {background-position: -144px -154px}
+    .flag.flag-us {background-position: -160px -154px}
+    .flag.flag-uy {background-position: -176px -154px}
+    .flag.flag-uz {background-position: -192px -154px}
+    .flag.flag-va {background-position: -208px -154px}
+    .flag.flag-vc {background-position: -224px -154px}
+    .flag.flag-ve {background-position: -240px -154px}
+    .flag.flag-vg {background-position: 0 -165px}
+    .flag.flag-vi {background-position: -16px -165px}
+    .flag.flag-vn {background-position: -32px -165px}
+    .flag.flag-vu {background-position: -48px -165px}
+    .flag.flag-wales {background-position: -64px -165px}
+    .flag.flag-wf {background-position: -80px -165px}
+    .flag.flag-ws {background-position: -96px -165px}
+    .flag.flag-xk {background-position: -112px -165px}
+    .flag.flag-ye {background-position: -128px -165px}
+    .flag.flag-yt {background-position: -144px -165px}
+    .flag.flag-za {background-position: -160px -165px}
+    .flag.flag-zanzibar {background-position: -176px -165px}
+    .flag.flag-zm {background-position: -192px -165px}
+    .flag.flag-zw {background-position: -208px -165px}
+  </style>
+</head>
+<body>
+  <script type="text/javascript">
+    var width = 960,
+    height = 600,
+    radius = 6;
+
+    var fill = d3.scale.category20();
+
+    var force = d3.layout.force()
+        .gravity(.06)
+        .charge(-40)
+        .linkDistance(50)
+        .size([width, height]);
+
+    var svg = d3.select("body").append("svg")
+        .attr("width", width)
+        .attr("height", height);
+
+    var div = d3.select("body").append("div")
+              .style("width", width)
+              .style("height", height)
+
+    var tooltip = d3.select("body").append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
+
+    var graph = {
+      "nodes": [
+        { "country": "East Timor", "code": "tl" },
+        { "country": "Canada", "code": "ca" },
+        { "country": "Turkmenistan", "code": "tm" },
+        { "country": "United States of America", "code": "us" },
+        { "country": "Lithuania", "code": "lt" },
+        { "country": "Cambodia", "code": "kh" },
+        { "country": "Ethiopia", "code": "et" },
+        { "country": "Swaziland", "code": "sz" },
+        { "country": "Argentina", "code": "ar" },
+        { "country": "Bolivia", "code": "bo" },
+        { "country": "Cameroon", "code": "cm" },
+        { "country": "Burkina Faso", "code": "bf" },
+        { "country": "Ghana", "code": "gh" },
+        { "country": "Saudi Arabia", "code": "sa" },
+        { "country": "Slovenia", "code": "si" },
+        { "country": "Guatemala", "code": "gt" },
+        { "country": "Bosnia and Herzegovina", "code": "ba" },
+        { "country": "Kuwait", "code": "kw" },
+        { "country": "Russian Federation", "code": "ru" },
+        { "country": "Jordan", "code": "jo" },
+        { "country": "St. Lucia", "code": "lc" },
+        { "country": "Spain", "code": "es" },
+        { "country": "Liberia", "code": "lr" },
+        { "country": "Netherlands", "code": "nl" },
+        { "country": "Paraguay", "code": "py" },
+        { "country": "Oman", "code": "om" },
+        { "country": "Tanzania", "code": "tz" },
+        { "country": "Gabon", "code": "ga" },
+        { "country": "Monaco", "code": "mc" },
+        { "country": "Yemen", "code": "ye" },
+        { "country": "Pakistan", "code": "pk" },
+        { "country": "Albania", "code": "al" },
+        { "country": "United Arab Emirates", "code": "ae" },
+        { "country": "India", "code": "in" },
+        { "country": "Azerbaijan", "code": "az" },
+        { "country": "Lesotho", "code": "ls" },
+        { "country": "Kenya", "code": "ke" },
+        { "country": "South Korea", "code": "kr" },
+        { "country": "Tajikistan", "code": "tj" },
+        { "country": "Turkey", "code": "tr" },
+        { "country": "Afghanistan", "code": "af" },
+        { "country": "Bangladesh", "code": "bd" },
+        { "country": "Mauritania", "code": "mr" },
+        { "country": "Solomon Islands", "code": "sb" },
+        { "country": "San Marino", "code": "sm" },
+        { "country": "Kyrgyzstan", "code": "kg" },
+        { "country": "Mongolia", "code": "mn" },
+        { "country": "France", "code": "fr" },
+        { "country": "Rwanda", "code": "rw" },
+        { "country": "Slovakia", "code": "sk" },
+        { "country": "Somalia", "code": "so" },
+        { "country": "Peru", "code": "pe" },
+        { "country": "Laos", "code": "la" },
+        { "country": "Norway", "code": "no" },
+        { "country": "Malawi", "code": "mw" },
+        { "country": "Benin", "code": "bj" },
+        { "country": "Singapore", "code": "sg" },
+        { "country": "Montenegro", "code": "me" },
+        { "country": "Togo", "code": "tg" },
+        { "country": "China", "code": "cn" },
+        { "country": "Armenia", "code": "am" },
+        { "country": "Dominican Republic", "code": "do" },
+        { "country": "Ukraine", "code": "ua" },
+        { "country": "Bahrain", "code": "bh" },
+        { "country": "Finland", "code": "fi" },
+        { "country": "Libya", "code": "ly" },
+        { "country": "Indonesia", "code": "id" },
+        { "country": "Central African Republic", "code": "cf" },
+        { "country": "Sweden", "code": "se" },
+        { "country": "Vietnam", "code": "vn" },
+        { "country": "Mali", "code": "ml" },
+        { "country": "Bulgaria", "code": "bg" },
+        { "country": "Romania", "code": "ro" },
+        { "country": "Angola", "code": "ao" },
+        { "country": "Chad", "code": "td" },
+        { "country": "South Africa", "code": "za" },
+        { "country": "St. Vincent and the Grenadines", "code": "vc" },
+        { "country": "Nicaragua", "code": "ni" },
+        { "country": "Liechtenstein", "code": "li" },
+        { "country": "Antigua & Barbuda", "code": "ag" },
+        { "country": "Malaysia", "code": "my" },
+        { "country": "Senegal", "code": "sn" },
+        { "country": "Mozambique", "code": "mz" },
+        { "country": "Uganda", "code": "ug" },
+        { "country": "Japan", "code": "jp" },
+        { "country": "Niger", "code": "ne" },
+        { "country": "Brazil", "code": "br" },
+        { "country": "Guinea", "code": "gn" },
+        { "country": "Panama", "code": "pa" },
+        { "country": "Guyana", "code": "gy" },
+        { "country": "Costa Rica", "code": "cr" },
+        { "country": "Luxembourg", "code": "lu" },
+        { "country": "Andorra", "code": "ad" },
+        { "country": "Ivory Coast", "code": "ci" },
+        { "country": "Syria", "code": "sy" },
+        { "country": "Nigeria", "code": "ng" },
+        { "country": "Ecuador", "code": "ec" },
+        { "country": "Czech Republic", "code": "cz" },
+        { "country": "Brunei", "code": "bn" },
+        { "country": "Australia", "code": "au" },
+        { "country": "Iran", "code": "ir" },
+        { "country": "Algeria", "code": "dz" },
+        { "country": "El Salvador", "code": "sv" },
+        { "country": "St. Kitts and Nevis", "code": "kn" },
+        { "country": "Chile", "code": "cl" },
+        { "country": "Belgium", "code": "be" },
+        { "country": "Thailand", "code": "th" },
+        { "country": "Haiti", "code": "ht" },
+        { "country": "Iraq", "code": "iq" },
+        { "country": "Sierra Leone", "code": "sl" },
+        { "country": "Georgia", "code": "ge" },
+        { "country": "Gambia", "code": "gm" },
+        { "country": "Philippines", "code": "ph" },
+        { "country": "Moldova", "code": "md" },
+        { "country": "Morocco", "code": "ma" },
+        { "country": "Namibia", "code": "na" },
+        { "country": "Guinea-Bissau", "code": "gw" },
+        { "country": "Switzerland", "code": "ch" },
+        { "country": "Grenada", "code": "gd" },
+        { "country": "Belize", "code": "bz" },
+        { "country": "Portugal", "code": "pt" },
+        { "country": "Estonia", "code": "ee" },
+        { "country": "Uruguay", "code": "uy" },
+        { "country": "Equatorial Guinea", "code": "gq" },
+        { "country": "Lebanon", "code": "lb" },
+        { "country": "Uzbekistan", "code": "uz" },
+        { "country": "Egypt", "code": "eg" },
+        { "country": "Djibouti", "code": "dj" },
+        { "country": "Colombia", "code": "co" },
+        { "country": "Burundi", "code": "bi" },
+        { "country": "Taiwan", "code": "tw" },
+        { "country": "Cyprus", "code": "cy" },
+        { "country": "Qatar", "code": "qa" },
+        { "country": "Italy", "code": "it" },
+        { "country": "Bhutan", "code": "bt" },
+        { "country": "Sudan", "code": "sd" },
+        { "country": "Nepal", "code": "np" },
+        { "country": "Democratic Republic of the Congo", "code": "cd" },
+        { "country": "Suriname", "code": "sr" },
+        { "country": "Venezuela", "code": "ve" },
+        { "country": "Israel", "code": "il" },
+        { "country": "Zambia", "code": "zm" },
+        { "country": "Austria", "code": "at" },
+        { "country": "Papua New Guinea", "code": "pg" },
+        { "country": "Zimbabwe", "code": "zw" },
+        { "country": "Germany", "code": "de" },
+        { "country": "Denmark", "code": "dk" },
+        { "country": "Kazakhstan", "code": "kz" },
+        { "country": "Poland", "code": "pl" },
+        { "country": "Eritrea", "code": "er" },
+        { "country": "Ireland", "code": "ie" },
+        { "country": "Macedonia", "code": "mk" },
+        { "country": "North Korea", "code": "kp" },
+        { "country": "Trinidad and Tobago", "code": "tt" },
+        { "country": "Latvia", "code": "lv" },
+        { "country": "Hungary", "code": "hu" },
+        { "country": "Belarus", "code": "by" },
+        { "country": "Honduras", "code": "hn" },
+        { "country": "Myanmar", "code": "mm" },
+        { "country": "Mexico", "code": "mx" },
+        { "country": "Tunisia", "code": "tn" },
+        { "country": "United Kingdom", "code": "gb" },
+        { "country": "Congo", "code": "cg" },
+        { "country": "Yugoslavia", "code": "xk" },
+        { "country": "Greece", "code": "gr" },
+        { "country": "Sri Lanka", "code": "lk" },
+        { "country": "Croatia", "code": "hr" },
+        { "country": "Botswana", "code": "bw" }
+      ],
+      "links": [
+        { "target": 66, "source": 0 },
+        { "target": 3, "source": 1 },
+        { "target": 100, "source": 2 },
+        { "target": 40, "source": 2 },
+        { "target": 125, "source": 2 },
+        { "target": 147, "source": 2 },
+        { "target": 159, "source": 3 },
+        { "target": 18, "source": 3 },
+        { "target": 148, "source": 4 },
+        { "target": 18, "source": 4 },
+        { "target": 154, "source": 4 },
+        { "target": 156, "source": 4 },
+        { "target": 106, "source": 5 },
+        { "target": 52, "source": 5 },
+        { "target": 69, "source": 5 },
+        { "target": 36, "source": 6 },
+        { "target": 50, "source": 6 },
+        { "target": 127, "source": 6 },
+        { "target": 149, "source": 6 },
+        { "target": 135, "source": 6 },
+        { "target": 82, "source": 7 },
+        { "target": 75, "source": 7 },
+        { "target": 86, "source": 8 },
+        { "target": 9, "source": 8 },
+        { "target": 24, "source": 8 },
+        { "target": 104, "source": 8 },
+        { "target": 122, "source": 8 },
+        { "target": 51, "source": 9 },
+        { "target": 86, "source": 9 },
+        { "target": 24, "source": 9 },
+        { "target": 104, "source": 9 },
+        { "target": 123, "source": 10 },
+        { "target": 95, "source": 10 },
+        { "target": 27, "source": 10 },
+        { "target": 67, "source": 10 },
+        { "target": 74, "source": 10 },
+        { "target": 162, "source": 10 },
+        { "target": 70, "source": 11 },
+        { "target": 55, "source": 11 },
+        { "target": 85, "source": 11 },
+        { "target": 93, "source": 11 },
+        { "target": 12, "source": 11 },
+        { "target": 58, "source": 11 },
+        { "target": 93, "source": 12 },
+        { "target": 58, "source": 12 },
+        { "target": 108, "source": 13 },
+        { "target": 126, "source": 13 },
+        { "target": 19, "source": 13 },
+        { "target": 140, "source": 13 },
+        { "target": 29, "source": 13 },
+        { "target": 17, "source": 13 },
+        { "target": 63, "source": 13 },
+        { "target": 132, "source": 13 },
+        { "target": 32, "source": 13 },
+        { "target": 25, "source": 13 },
+        { "target": 142, "source": 14 },
+        { "target": 155, "source": 14 },
+        { "target": 133, "source": 14 },
+        { "target": 166, "source": 14 },
+        { "target": 159, "source": 15 },
+        { "target": 119, "source": 15 },
+        { "target": 157, "source": 15 },
+        { "target": 102, "source": 15 },
+        { "target": 166, "source": 16 },
+        { "target": 163, "source": 16 },
+        { "target": 57, "source": 16 },
+        { "target": 100, "source": 17 },
+        { "target": 108, "source": 17 },
+        { "target": 148, "source": 18 },
+        { "target": 121, "source": 18 },
+        { "target": 154, "source": 18 },
+        { "target": 62, "source": 18 },
+        { "target": 156, "source": 18 },
+        { "target": 110, "source": 18 },
+        { "target": 34, "source": 18 },
+        { "target": 64, "source": 18 },
+        { "target": 53, "source": 18 },
+        { "target": 147, "source": 18 },
+        { "target": 59, "source": 18 },
+        { "target": 46, "source": 18 },
+        { "target": 152, "source": 18 },
+        { "target": 84, "source": 18 },
+        { "target": 108, "source": 19 },
+        { "target": 126, "source": 19 },
+        { "target": 94, "source": 19 },
+        { "target": 140, "source": 19 },
+        { "target": 76, "source": 20 },
+        { "target": 47, "source": 21 },
+        { "target": 92, "source": 21 },
+        { "target": 120, "source": 21 },
+        { "target": 114, "source": 21 },
+        { "target": 93, "source": 22 },
+        { "target": 87, "source": 22 },
+        { "target": 109, "source": 22 },
+        { "target": 105, "source": 23 },
+        { "target": 145, "source": 23 },
+        { "target": 86, "source": 24 },
+        { "target": 29, "source": 25 },
+        { "target": 32, "source": 25 },
+        { "target": 137, "source": 26 },
+        { "target": 83, "source": 26 },
+        { "target": 36, "source": 26 },
+        { "target": 129, "source": 26 },
+        { "target": 48, "source": 26 },
+        { "target": 82, "source": 26 },
+        { "target": 141, "source": 26 },
+        { "target": 54, "source": 26 },
+        { "target": 123, "source": 27 },
+        { "target": 162, "source": 27 },
+        { "target": 47, "source": 28 },
+        { "target": 127, "source": 29 },
+        { "target": 149, "source": 29 },
+        { "target": 100, "source": 30 },
+        { "target": 40, "source": 30 },
+        { "target": 59, "source": 30 },
+        { "target": 33, "source": 30 },
+        { "target": 158, "source": 30 },
+        { "target": 151, "source": 31 },
+        { "target": 163, "source": 31 },
+        { "target": 57, "source": 31 },
+        { "target": 164, "source": 31 },
+        { "target": 132, "source": 32 },
+        { "target": 59, "source": 33 },
+        { "target": 134, "source": 33 },
+        { "target": 41, "source": 33 },
+        { "target": 158, "source": 33 },
+        { "target": 165, "source": 33 },
+        { "target": 136, "source": 33 },
+        { "target": 60, "source": 34 },
+        { "target": 110, "source": 34 },
+        { "target": 100, "source": 34 },
+        { "target": 39, "source": 34 },
+        { "target": 75, "source": 35 },
+        { "target": 83, "source": 36 },
+        { "target": 50, "source": 36 },
+        { "target": 135, "source": 36 },
+        { "target": 152, "source": 37 },
+        { "target": 40, "source": 38 },
+        { "target": 45, "source": 38 },
+        { "target": 125, "source": 38 },
+        { "target": 59, "source": 38 },
+        { "target": 164, "source": 39 },
+        { "target": 131, "source": 39 },
+        { "target": 71, "source": 39 },
+        { "target": 60, "source": 39 },
+        { "target": 110, "source": 39 },
+        { "target": 100, "source": 39 },
+        { "target": 108, "source": 39 },
+        { "target": 94, "source": 39 },
+        { "target": 100, "source": 40 },
+        { "target": 125, "source": 40 },
+        { "target": 59, "source": 40 },
+        { "target": 158, "source": 41 },
+        { "target": 70, "source": 42 },
+        { "target": 81, "source": 42 },
+        { "target": 114, "source": 42 },
+        { "target": 101, "source": 42 },
+        { "target": 143, "source": 43 },
+        { "target": 133, "source": 44 },
+        { "target": 125, "source": 45 },
+        { "target": 147, "source": 45 },
+        { "target": 59, "source": 45 },
+        { "target": 59, "source": 46 },
+        { "target": 161, "source": 47 },
+        { "target": 105, "source": 47 },
+        { "target": 91, "source": 47 },
+        { "target": 117, "source": 47 },
+        { "target": 92, "source": 47 },
+        { "target": 145, "source": 47 },
+        { "target": 133, "source": 47 },
+        { "target": 137, "source": 48 },
+        { "target": 83, "source": 48 },
+        { "target": 129, "source": 48 },
+        { "target": 148, "source": 49 },
+        { "target": 142, "source": 49 },
+        { "target": 155, "source": 49 },
+        { "target": 97, "source": 49 },
+        { "target": 62, "source": 49 },
+        { "target": 127, "source": 50 },
+        { "target": 128, "source": 51 },
+        { "target": 96, "source": 51 },
+        { "target": 86, "source": 51 },
+        { "target": 104, "source": 51 },
+        { "target": 59, "source": 52 },
+        { "target": 158, "source": 52 },
+        { "target": 106, "source": 52 },
+        { "target": 69, "source": 52 },
+        { "target": 64, "source": 53 },
+        { "target": 68, "source": 53 },
+        { "target": 82, "source": 54 },
+        { "target": 141, "source": 54 },
+        { "target": 85, "source": 55 },
+        { "target": 58, "source": 55 },
+        { "target": 95, "source": 55 },
+        { "target": 80, "source": 56 },
+        { "target": 66, "source": 56 },
+        { "target": 166, "source": 57 },
+        { "target": 163, "source": 57 },
+        { "target": 147, "source": 59 },
+        { "target": 130, "source": 59 },
+        { "target": 152, "source": 59 },
+        { "target": 134, "source": 59 },
+        { "target": 158, "source": 59 },
+        { "target": 136, "source": 59 },
+        { "target": 69, "source": 59 },
+        { "target": 110, "source": 60 },
+        { "target": 100, "source": 60 },
+        { "target": 107, "source": 61 },
+        { "target": 148, "source": 62 },
+        { "target": 155, "source": 62 },
+        { "target": 113, "source": 62 },
+        { "target": 72, "source": 62 },
+        { "target": 156, "source": 62 },
+        { "target": 132, "source": 63 },
+        { "target": 121, "source": 64 },
+        { "target": 68, "source": 64 },
+        { "target": 85, "source": 65 },
+        { "target": 74, "source": 65 },
+        { "target": 101, "source": 65 },
+        { "target": 160, "source": 65 },
+        { "target": 135, "source": 65 },
+        { "target": 126, "source": 65 },
+        { "target": 80, "source": 66 },
+        { "target": 143, "source": 66 },
+        { "target": 74, "source": 67 },
+        { "target": 162, "source": 67 },
+        { "target": 137, "source": 67 },
+        { "target": 135, "source": 67 },
+        { "target": 146, "source": 68 },
+        { "target": 81, "source": 70 },
+        { "target": 85, "source": 70 },
+        { "target": 93, "source": 70 },
+        { "target": 87, "source": 70 },
+        { "target": 101, "source": 70 },
+        { "target": 151, "source": 71 },
+        { "target": 163, "source": 71 },
+        { "target": 164, "source": 71 },
+        { "target": 72, "source": 71 },
+        { "target": 155, "source": 72 },
+        { "target": 163, "source": 72 },
+        { "target": 113, "source": 72 },
+        { "target": 162, "source": 73 },
+        { "target": 137, "source": 73 },
+        { "target": 141, "source": 73 },
+        { "target": 115, "source": 73 },
+        { "target": 85, "source": 74 },
+        { "target": 95, "source": 74 },
+        { "target": 135, "source": 74 },
+        { "target": 82, "source": 75 },
+        { "target": 144, "source": 75 },
+        { "target": 115, "source": 75 },
+        { "target": 167, "source": 75 },
+        { "target": 118, "source": 76 },
+        { "target": 157, "source": 77 },
+        { "target": 102, "source": 77 },
+        { "target": 90, "source": 77 },
+        { "target": 117, "source": 78 },
+        { "target": 142, "source": 78 },
+        { "target": 103, "source": 79 },
+        { "target": 106, "source": 80 },
+        { "target": 98, "source": 80 },
+        { "target": 112, "source": 80 },
+        { "target": 116, "source": 81 },
+        { "target": 111, "source": 81 },
+        { "target": 87, "source": 81 },
+        { "target": 141, "source": 82 },
+        { "target": 144, "source": 82 },
+        { "target": 137, "source": 83 },
+        { "target": 135, "source": 83 },
+        { "target": 95, "source": 85 },
+        { "target": 101, "source": 85 },
+        { "target": 128, "source": 86 },
+        { "target": 139, "source": 86 },
+        { "target": 89, "source": 86 },
+        { "target": 138, "source": 86 },
+        { "target": 122, "source": 86 },
+        { "target": 116, "source": 87 },
+        { "target": 93, "source": 87 },
+        { "target": 109, "source": 87 },
+        { "target": 90, "source": 88 },
+        { "target": 128, "source": 88 },
+        { "target": 139, "source": 89 },
+        { "target": 138, "source": 89 },
+        { "target": 105, "source": 91 },
+        { "target": 145, "source": 91 },
+        { "target": 108, "source": 94 },
+        { "target": 124, "source": 94 },
+        { "target": 140, "source": 94 },
+        { "target": 128, "source": 96 },
+        { "target": 145, "source": 97 },
+        { "target": 148, "source": 97 },
+        { "target": 142, "source": 97 },
+        { "target": 143, "source": 99 },
+        { "target": 108, "source": 100 },
+        { "target": 114, "source": 101 },
+        { "target": 160, "source": 101 },
+        { "target": 157, "source": 102 },
+        { "target": 145, "source": 105 },
+        { "target": 158, "source": 106 },
+        { "target": 141, "source": 115 },
+        { "target": 167, "source": 115 },
+        { "target": 145, "source": 117 },
+        { "target": 142, "source": 117 },
+        { "target": 133, "source": 117 },
+        { "target": 159, "source": 119 },
+        { "target": 154, "source": 121 },
+        { "target": 140, "source": 124 },
+        { "target": 147, "source": 125 },
+        { "target": 135, "source": 126 },
+        { "target": 140, "source": 126 },
+        { "target": 149, "source": 127 },
+        { "target": 139, "source": 128 },
+        { "target": 137, "source": 129 },
+        { "target": 142, "source": 133 },
+        { "target": 166, "source": 133 },
+        { "target": 137, "source": 135 },
+        { "target": 149, "source": 135 },
+        { "target": 162, "source": 137 },
+        { "target": 141, "source": 137 },
+        { "target": 153, "source": 139 },
+        { "target": 144, "source": 141 },
+        { "target": 167, "source": 141 },
+        { "target": 145, "source": 142 },
+        { "target": 155, "source": 142 },
+        { "target": 167, "source": 144 },
+        { "target": 148, "source": 145 },
+        { "target": 146, "source": 145 },
+        { "target": 156, "source": 148 },
+        { "target": 161, "source": 150 },
+        { "target": 163, "source": 151 },
+        { "target": 164, "source": 151 },
+        { "target": 156, "source": 154 },
+        { "target": 166, "source": 155 },
+        { "target": 163, "source": 155 },
+        { "target": 166, "source": 163 }
+      ]
+    }
+
+      var link = svg.selectAll("line")
+          .data(graph.links)
+        .enter().append("line");
+
+      var node = div.selectAll("img")
+          .data(graph.nodes)
+        .enter().append("div")
+          .attr("class", function(d) { return "flag flag-" + d.code })
+          .on("mouseover", function(d) {    
+            tooltip.transition()    
+                .duration(200)    
+                .style("opacity", .9);    
+            tooltip.html(d.country)  
+                .style("left", (d3.event.pageX) + "px")   
+                .style("top", (d3.event.pageY - 28) + "px");  
+            })          
+          .on("mouseout", function(d) {   
+              tooltip.transition()    
+                  .duration(500)    
+                  .style("opacity", 0); 
+          })
+          .call(force.drag);
+
+      force
+          .nodes(graph.nodes)
+          .links(graph.links)
+          .on("tick", tick)
+          .start();
+
+      function tick() {
+        node.attr("style", function(d) { return "left:  " + Math.max(radius, Math.min(width - radius, d.x)) +"px;top: " + Math.max(radius, Math.min(height - radius, d.y)) + "px"; })
+
+        link.attr("x1", function(d) { return d.source.x; })
+            .attr("y1", function(d) { return d.source.y; })
+            .attr("x2", function(d) { return d.target.x; })
+            .attr("y2", function(d) { return d.target.y; });
+      }
+  </script>
+</body>
+</html>
